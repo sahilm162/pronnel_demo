@@ -9,6 +9,7 @@ img {
 .btn-custom {
   background-color: #2E4765;
   color: white;
+  opacity: 1;
 }
 
 .btn-custom-outlined {
