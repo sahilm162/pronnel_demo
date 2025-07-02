@@ -1,0 +1,17 @@
+body {
+  font-family: 'Proxima Nova';
+}
+
+img {
+  max-width: 90%;
+}
+
+.btn-custom {
+  background-color: #2E4765;
+  color: white;
+}
+
+.btn-custom-outlined {
+    border-color: #2E4765;
+    color: #2E4765;
+}

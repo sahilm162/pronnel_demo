@@ -1,0 +1,58 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="row w-100">
+    
+    <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center">
+      <img src="assets/login-illustration.svg" class="img-fluid" alt="Login Illustration" />
+    </div>
+
+    <div class="col-md-6 d-flex align-items-center justify-content-center px-5">
+      <div class="w-100" style="max-width: 400px;">
+        <h2 class="fw-bold mb-2">PROJECT NAME</h2>
+        <p class="text-muted mb-4">Welcome Back! Please Login To Your Account.</p>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input
+              type="email"
+              class="form-control"
+              formControlName="email"
+              #emailInput
+              autofocus
+            />
+            <small *ngIf="email?.invalid && email?.touched" class="text-danger">Invalid Email</small>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                class="form-control"
+                formControlName="password"
+              />
+              <button type="button" class="btn btn-outline-secondary" (click)="togglePassword()">
+                <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+            <small *ngIf="password?.invalid && password?.touched" class="text-danger">Password required</small>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3">
+            <div>
+              <input type="checkbox" id="rememberMe" />
+              <label for="rememberMe"> Remember Me</label>
+            </div>
+            <a href="#" class="text-decoration-none">Forgot Password</a>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-custom w-50" [disabled]="loginForm.invalid">Login</button>
+            <button type="button" class="btn btn-custom-outlined w-50">Sign Up</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
