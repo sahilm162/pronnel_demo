@@ -50,6 +50,7 @@
             <button type="submit" class="btn btn-custom w-50" [disabled]="loginForm.invalid">Login</button>
             <button type="button" class="btn btn-custom-outlined w-50">Sign Up</button>
           </div>
+          <p *ngIf="errorMessage" style="color: red">{{ errorMessage }}</p>
         </form>
       </div>
     </div>

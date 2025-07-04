@@ -1,49 +1,59 @@
-import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { API_BASE_URL } from "../constants/api.constant";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { v4 as uuidv4 } from 'uuid';
+import { environment } from 'src/environments/environment';
 
-@Injectable({ providedIn: 'root'})
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
-    // private loginUrl = `${API_BASE_URL}/api/user/sessions`;
+  private readonly baseUrl = environment.BASE_URL;
 
-    constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-    login(username: string, password: string) {
-        const clientId = uuidv4();
-        const headers = new HttpHeaders({
-            'Content-Type': 'application/json',
-            // Authorization: 'Basic ' + btoa(`${username}: ${password}`)
-            Authorization: 'Basic ' + btoa(`amanjhavdjs12tha+1@gmail.com:Pronnel@2025`)
-        });
+  login(email: string, password: string) {
+  const clientId = uuidv4()
+  const body = {
+    email: email,
+    password: password,
+    client_id: clientId
+  };
 
-        // return this.http.post(this.loginUrl, { client_id: clientId }, { headers, observe: 'response'});
-        return this.http.post(`/api/user/sessions`, { client_id: clientId }, {
-    headers,
-    observe: 'response',
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json'
   });
-    }
 
-    saveLoginDetails(response: any){
-        const user = response.body;
-        const headers = response.headers;
-        localStorage.setItem('x-auth-token', headers.get('x-auth-token') || '');
-        localStorage.setItem('refresh-token', headers.get('refresh-token') || '');
-        localStorage.setItem('user', JSON.stringify(user));
-    }
+  console.log('Login Payload:', body);
+console.log('Headers:', headers);
 
-    isLoggedIn(): boolean {
-        return !!localStorage.getItem('x-auth-token');
-    }
+  return this.http.post(`${this.baseUrl}/user/login`, body, {
+    headers,
+    observe: 'response'
+  });
+}
 
-    logout(): void {
-        localStorage.clear();
-        this.router.navigate(['/login']);
-    }
+  saveLoginData(response: any) {
+  const userData = response.body;
 
-    getUser(): any {
-        const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
-    }
+  const authToken = userData.token;
+  const refreshToken = userData.refresh_token;
+
+  localStorage.setItem('x-auth-token', authToken || '');
+  localStorage.setItem('refresh-token', refreshToken || '');
+  localStorage.setItem('user', JSON.stringify(userData));
+}
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('x-auth-token');
+  }
+
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
+  getUser() {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  }
 }

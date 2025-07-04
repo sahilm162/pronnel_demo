@@ -13,19 +13,18 @@ export class LoginComponent implements OnInit {
   showPassword: boolean = false;
   errorMessage = '';
 
-  constructor(private fb: FormBuilder, private router: Router, private auth: AuthService) {}
-
-  ngOnInit(): void {
+  constructor(private fb: FormBuilder, private router: Router, private auth: AuthService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
-
-    if (this.auth.isLoggedIn()) {
-      this.router.navigate(['/home']);
-    }
-
   }
+
+  ngOnInit() {
+  if (this.auth.isLoggedIn()) {
+    this.router.navigate(['/home']);
+  }
+}
 
   get email() {
     return this.loginForm.get('email');
@@ -46,12 +45,16 @@ export class LoginComponent implements OnInit {
 
     this.auth.login(email, password).subscribe({
       next: (res) => {
-        this.auth.saveLoginDetails(res);
+        console.log('Login successful', res.body);
+        this.auth.saveLoginData(res);
+        setTimeout(() => {
         this.router.navigate(['/home']);
+      }, 50);
       },
       error: (err) => {
-        this.errorMessage = err?.error?.message || 'Invalid email or password';
-      },
+        console.log('error successful', err);
+        this.errorMessage = err.error?.message || 'Login failed. Please try again.';
+      }
     });
   }
 }
