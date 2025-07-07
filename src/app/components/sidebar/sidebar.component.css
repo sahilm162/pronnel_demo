@@ -1,0 +1,122 @@
+.sidebar {
+  width: 260px;
+  background-color: #ffffff;
+  height: 100vh;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  position: fixed;
+  box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999
+}
+
+.sidebar.collapsed {
+  width: 90px;
+}
+
+.logo-section {
+  background-color: #f44336;
+  color: white;
+  font-weight: bold;
+  padding: 1.2rem;
+  display: relative;
+  text-align: center;
+}
+
+.logo-large {
+  font-size: 2.5rem;
+  transition: font-size 0.3s ease;
+}
+
+.logo-small {
+  font-size: 1.5rem;
+  transition: font-size 0.3s ease;
+}
+
+.toggle-btn {
+  background: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  color: #FF544C;
+  cursor: pointer;
+}
+
+.profile-section {
+  padding: 1.5rem 1rem 1rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-section img {
+  width: 80px;
+  height: 80px;
+  border-radius: 30%;
+  object-fit: cover;
+}
+
+.collapsed-avatar img {
+  width: 60px;
+  height: 60px;
+  margin: 1rem auto;
+  display: block;
+}
+
+.profile-section h6 {
+  margin: 0.5rem 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.profile-section span {
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+}
+
+.menu.collapsed a {
+  justify-content: center;
+}
+
+.menu.collapsed i {
+  margin-right: 0;
+  font-size: 1.3rem;
+}
+
+.menu a {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #333;
+  font-size: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.menu i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  transition: margin 0.3s ease, font-size 0.3s ease;
+}
+.menu span {
+  transition: opacity 0.3s ease, margin 0.3s ease;
+  white-space: nowrap;
+}
+
+.menu.collapsed span {
+  opacity: 0;
+  margin-left: 0;
+  width: 0;
+  overflow: hidden;
+}

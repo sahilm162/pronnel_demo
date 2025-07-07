@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://dev2.athmin.com/hopfirst",
+    "target": "https://dev1api.pronnel.com",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

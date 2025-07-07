@@ -1,0 +1,64 @@
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { AuthService } from 'src/app/services/auth.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+
+@Component({
+  selector: 'app-sidebar',
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.css']
+})
+export class SidebarComponent implements OnInit {
+  @Output() openProfileDialog = new EventEmitter<void>();
+
+  isCollapsed: boolean = true;
+  user: any;
+  profileImageUrl: string | null = null;
+  showInviteDialog = false;
+
+  constructor(private auth: AuthService, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.user = this.auth.getUser();
+    if (this.user?.user_id) {
+      this.loadUserImage(this.user.user_id);
+    }
+  }
+
+  toggleSidebar(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
+  loadUserImage(userId: string): void {
+    const url = `${environment.BASE_URL}/user/profileimage/query`;
+    const body = {
+      user_id: [userId]
+    };
+
+    this.http.post<any>(url, body).subscribe({
+      next: (res) => {
+        const image = res?.images?.[0];
+        this.profileImageUrl = image?.image_download_url || null;
+      },
+      error: (err) => {
+        console.error('Failed to load profile image', err);
+        this.profileImageUrl = null;
+      }
+    });
+  }
+
+ openAddUserDialog() {
+  this.showInviteDialog = true;
+}
+
+closeInviteDialog() {
+  this.showInviteDialog = false;
+}
+
+
+  onProfileClick(): void {
+    this.openProfileDialog.emit();
+  }
+
+}
+

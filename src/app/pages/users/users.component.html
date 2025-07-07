@@ -1,0 +1,113 @@
+<div class="user-page">
+    <div class="header d-flex justify-content-between align-items-center">
+        <div class="search-container">
+            <div class="search-box" (clickOutside)="onSearch()" (keydown.enter)="onSearch()">
+                <input type="text" class="form-control search-input" placeholder="Search..." [(ngModel)]="searchText"
+                    (blur)="onSearch()" />
+                <i class="bi bi-search search-icon" (click)="onSearch()"></i>
+            </div>
+            <div class="accesebility-btn">
+                <button class="filter-btn" (click)="toggleFilterPanel()">
+                    <i class="bi bi-sliders2"></i>
+                </button>
+               <div class="dropdown custom-sort-dropdown">
+                 <button class="filter-btn" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                   <i class="bi bi-sort-down"></i>
+                 </button>
+                 <div class="dropdown-menu p-2 shadow-sm" aria-labelledby="sortDropdown">
+                   <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold" (click)="applySort('name')">
+                     Name
+                     <span>
+                       <i class="bi bi-caret-up-fill d-block lh-1"></i>
+                       <i class="bi bi-caret-down-fill d-block lh-1"></i>
+                     </span>
+                   </div>
+                   <hr class="my-1" />
+                   <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold" (click)="applySort('created')">
+                     Create Date
+                     <span>
+                       <i class="bi bi-caret-up-fill d-block lh-1"></i>
+                       <i class="bi bi-caret-down-fill d-block lh-1"></i>
+                     </span>
+                   </div>
+                 </div>
+               </div>
+
+                <div class="filter-overlay" *ngIf="isFilterOpen" (click)="closeFilterPanel()"></div>
+
+                <div class="filter-panel" [class.open]="isFilterOpen" (click)="$event.stopPropagation()">
+                    <div class="filter-header">
+                        <h5>Filters</h5>
+                        <button class="close-btn" (click)="closeFilterPanel()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+
+                    <div class="filter-body">
+                        <div class="position-relative mb-3">
+                            <label for="role">Role</label>
+                            <select id="role" class="form-control mb-3" [(ngModel)]="filterRole">
+                                 <option value="">Select Role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Manager">Manager</option>
+                                <option value="User">User</option>
+                            </select>
+                            <i class="bi bi-caret-down-fill dropdown-arrow"></i>
+                        </div>
+
+                        <label>Created At</label>
+                        <div class="date-range-input">
+                            <i class="bi bi-calendar3 calendar-icon"></i>
+                            <input type="date" [(ngModel)]="startDate" class="date-field" placeholder="Start Date" />
+                            <span class="separator">→</span>
+                            <input type="date" [(ngModel)]="endDate" class="date-field" placeholder="End Date" />
+                        </div>
+
+                        <div class="filter-footer">
+                            <button class="btn btn-apply w-40" (click)="applyFilters()">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-btn">
+            <button class="btn btn-usertab">Org. Roles</button>
+            <button class="btn btn-usertab">Invite User</button>
+        </div>
+    </div>
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr class="table-header">
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Mobile</th>
+                <th>Create Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody class="table-body">
+            <tr *ngFor="let user of users">
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role?.[0]?.role_name || 'N/A' }}</td>
+                <td>{{ user.mobile }}</td>
+                <td>{{ user.create_date | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ user.status }}</td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            ⋮
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item text-danger" (click)="onDelete(user.user_id)">Delete</a></li>
+                            <li><a class="dropdown-item" (click)="onEdit(user.user_id)">Edit</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

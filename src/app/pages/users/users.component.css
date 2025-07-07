@@ -1,0 +1,195 @@
+.search-container {
+    position: relative;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-box {
+    position: relative;
+  width: 100%;
+  max-width: 250px;
+}
+
+.search-input {
+  width: 100%;
+  padding-right: 2.5rem;
+  padding-left: 1rem;
+  height: 38px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #b6b6b6;
+  box-shadow: 0 0 0 2px rgba(126, 125, 124, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+  font-size: 1.2rem;
+}
+
+.filter-btn {
+  background: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 1.5rem;
+  color: #6f6f6f;
+}
+.filter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(128, 128, 128, 0.4);
+  z-index: 2000;
+}
+
+.filter-panel {
+  position: fixed;
+  top: 0;
+  right: -470px;
+  width: 450px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: right 0.3s ease;
+  z-index: 2002;
+}
+
+.filter-panel.open {
+  right: 0;
+}
+
+.filter-header {
+  background-color: #f44336;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-header h5 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.filter-body {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.filter-body label {
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.filter-footer {
+ width: 100%;
+ display: flex;
+ justify-content: end;
+ align-items: center;
+ margin-top: 2rem;
+}
+
+.btn-apply {
+    background-color: #f44336;
+    color: white;
+    border-radius: 50px;
+}
+
+.accesebility-btn {
+    display: flex;
+}
+
+.dropdown-arrow {
+  position: absolute;
+  top: 80%;
+  right: 12px;
+  transform: translateY(-80%);
+  pointer-events: none;
+  color: #888;
+}
+
+.date-range-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 6px 10px;
+  position: relative;
+  background-color: #fff;
+}
+
+.date-range-input:focus-within {
+  border-color: #b2b2b2;
+  box-shadow: 0 0 0 2px rgba(138, 138, 138, 0.1);
+}
+
+.date-field {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  padding: 4px 5px;
+  font-size: 0.9rem;
+  min-width: 100px;
+}
+
+.date-field::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+}
+
+.separator {
+  margin: 0 8px;
+  color: #666;
+}
+
+.calendar-icon {
+  font-size: 1.1rem;
+  color: #888;
+  margin-right: 8px;
+}
+
+.header-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-usertab {
+    background-color: #f44336;
+    color: white;
+    width: 8rem;
+}
+
+.dropdown-menu {
+    width: 200px;
+}

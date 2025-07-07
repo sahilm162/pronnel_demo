@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -12,6 +12,8 @@ export class HomepageComponent implements OnInit {
 
   ngOnInit() {
     const user = this.auth.getUser();
+    console.log('Logged in user details:', user);
     this.firstName = user?.name || '';
   }
+
 }

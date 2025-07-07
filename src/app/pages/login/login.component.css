@@ -1,0 +1,49 @@
+body {
+  font-family: 'Proxima Nova';
+}
+
+img {
+  max-width: 90%;
+}
+
+.btn-custom {
+  background-color: #2E4765;
+  color: white;
+  opacity: 1;
+}
+
+.btn-custom-outlined {
+    border-color: #2E4765;
+    color: #2E4765;
+}
+
+input.form-control {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+input.form-control:focus {
+  border-bottom: 1px solid #adadad !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+input.form-control {
+  background-color: transparent;
+  padding: 0.5rem 0;
+  height: auto;
+  font-size: 0.95rem;
+}
+
+.input-group .btn {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0.25rem 0.75rem;
+}
+
+.input-group .btn i {
+  font-size: 1.1rem;
+  color: #c7c7c7;
+}

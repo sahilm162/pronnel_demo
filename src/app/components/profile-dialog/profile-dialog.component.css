@@ -1,0 +1,112 @@
+.custom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.custom-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 10px;
+  max-width: 900px;
+  width: 90%;
+  z-index: 1000;
+  padding: 2rem;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+}
+
+.dialog-header {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.dialog-header h5 {
+  margin: 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.dialog-body {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.avatar-section {
+  flex: 1;
+  text-align: center;
+}
+
+.avatar-wrapper {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatar-wrapper:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.btn-group button {
+  width: 100px;
+  margin-top: 1rem;
+}
+
+.form-section {
+  flex: 2;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-check-inline {
+  margin-right: 1rem;
+}
+
+.btn-danger {
+  padding: 0.5rem 2rem;
+  border-radius: 20px;
+}

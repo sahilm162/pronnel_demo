@@ -1,0 +1,42 @@
+<div [class.collapsed]="isCollapsed" class="sidebar">
+    <div class="logo-section">
+        <span [ngClass]="isCollapsed ? 'logo-small' : 'logo-large'">logo</span>
+        <button class="toggle-btn" (click)="toggleSidebar()">
+            <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
+        </button>
+    </div>
+
+    <div class="profile-section" *ngIf="!isCollapsed" (click)="onProfileClick()">
+        <img *ngIf="profileImageUrl; else avatar" [src]="profileImageUrl" alt="Profile" />
+        <ng-template #avatar>
+            <div class="avatar-placeholder">{{ user?.name?.[0] }}</div>
+        </ng-template>
+        <div>
+            <h6>{{user?.name}}</h6>
+            <span>{{user?.role}}</span>
+        </div>
+    </div>
+
+    <div class="profile-section collapsed-avatar" *ngIf="isCollapsed" (click)="onProfileClick()">
+        <img *ngIf="profileImageUrl; else avatar" [src]="profileImageUrl" alt="Profile" />
+        <ng-template #avatar>
+            <div class="avatar-placeholder">{{ user?.name?.[0] }}</div>
+        </ng-template>
+    </div>
+
+    <nav class="menu" [class.collapsed]="isCollapsed">
+        <a routerLink="/home" routerLinkActive="active">
+            <i class="bi bi-house"></i>
+            <span *ngIf="!isCollapsed">Home</span>
+        </a>
+        <a (click)="openAddUserDialog()">
+            <i class="bi bi-plus-square"></i>
+            <span *ngIf="!isCollapsed">Add User</span>
+        </a>
+        <a routerLink="/users" routerLinkActive="active">
+            <i class="bi bi-table"></i>
+            <span *ngIf="!isCollapsed">User List</span>
+        </a>
+    </nav>
+</div>
+<app-user-dialog *ngIf="showInviteDialog" (close)="closeInviteDialog()"></app-user-dialog>
