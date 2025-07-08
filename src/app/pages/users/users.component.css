@@ -190,6 +190,127 @@
     width: 8rem;
 }
 
-.dropdown-menu {
-    width: 200px;
+.table {
+    table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-header tr th{
+  background-color: #f44336 !important;
+  color: white;
+}
+
+th:nth-child(1), td:nth-child(1) { width: 12%; }
+th:nth-child(2), td:nth-child(2) { width: 20%; }
+th:nth-child(3), td:nth-child(3) { width: 14%; }
+th:nth-child(4), td:nth-child(4) { width: 14%; }
+th:nth-child(5), td:nth-child(5) { width: 15%; }
+th:nth-child(6), td:nth-child(6) { width: 15%; }
+th:nth-child(7), td:nth-child(7) { width: 10%; text-align: center; }
+
+
+.action-dropdown {
+  position: relative;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #1e293b;
+  padding: 0;
+  font-size: bolder;
+  cursor: pointer;
+}
+
+.custom-dropdown {
+  border-radius: 10px;
+  padding: 0.5rem 0;
+  min-width: 140px;
+  border: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(5px);
+  z-index: 1000;
+}
+
+.custom-dropdown .dropdown-item {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.custom-dropdown .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.delete-action {
+  color: #dc3545;
+}
+
+.delete-action i {
+  color: #dc3545;
+}
+
+.edit-action i {
+  color: #1e293b;
+}
+
+.delete-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.delete-dialog-box {
+  background: white;
+  /* padding: 2rem; */
+  border-radius: 10px;
+  /* text-align: center; */
+  width: 500px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.delete-dialog-header {
+    background-color: #f44336;
+    color: white;
+    border-bottom: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.delete-dialog-content {
+ padding: 2rem;
+ font-size: 1.2rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+  padding: 1rem 2rem;
+     border-top: 1px solid #ccc;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+  color: #333;
+  border-radius: 50px;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  border-radius: 50px;
 }

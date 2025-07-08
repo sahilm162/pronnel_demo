@@ -7,7 +7,7 @@
       </button>
     </div>
 
-    <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()" class="dialog-form">
+    <form [formGroup]="inviteForm" (ngSubmit)="updateUserProfile()" class="dialog-form">
       <label>
         Name
         <input type="text" formControlName="name" placeholder="Enter Name" />
@@ -26,18 +26,18 @@
         <span>Usertype:</span>
         <div class="container-checkbox" style="display: flex; gap: 20px; margin-left: 10px;">
           <label class="chb">
-            <input type="checkbox" formControlName="isAdmin" id="admin1" />
+            <input type="checkbox" formControlName="isAdmin" id="admin" />
             Admin
           </label>
           <label class="chb">
-            <input type="checkbox" formControlName="isAdmin" id="admin2" />
+            <input type="checkbox" formControlName="isUser" id="user" />
             User
           </label>
         </div>
       </div>
 
       <div class="dialog-actions">
-        <button type="submit" class="btn edit-btn">Save</button>
+        <button type="submit" class="btn save-btn">Save</button>
       </div>
     </form>
   </div>

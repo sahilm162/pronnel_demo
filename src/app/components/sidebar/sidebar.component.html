@@ -1,17 +1,23 @@
 <div [class.collapsed]="isCollapsed" class="sidebar">
     <div class="logo-section">
-        <span [ngClass]="isCollapsed ? 'logo-small' : 'logo-large'">logo</span>
-        <button class="toggle-btn" (click)="toggleSidebar()">
-            <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
-        </button>
-    </div>
+  <span [ngClass]="isCollapsed ? 'logo-small' : 'logo-large'">logo</span>
+  <button
+    class="toggle-btn"
+    [ngClass]="isCollapsed ? 'toggle-btn-closed' : 'toggle-btn-open'"
+    (click)="toggleSidebar()"
+  >
+    <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
+  </button>
+</div>
 
-    <div class="profile-section" *ngIf="!isCollapsed" (click)="onProfileClick()">
-        <img *ngIf="profileImageUrl; else avatar" [src]="profileImageUrl" alt="Profile" />
-        <ng-template #avatar>
-            <div class="avatar-placeholder">{{ user?.name?.[0] }}</div>
-        </ng-template>
-        <div>
+    <div class="profile-section uncollapsed-avatar" *ngIf="!isCollapsed" (click)="onProfileClick()">
+        <div class="avatar-section">
+            <img *ngIf="profileImageUrl; else avatar" [src]="profileImageUrl" alt="Profile" />
+            <ng-template #avatar>
+                <div class="avatar-placeholder">{{ user?.name?.[0] }}</div>
+            </ng-template>
+        </div>
+        <div class="details-section">
             <h6>{{user?.name}}</h6>
             <span>{{user?.role}}</span>
         </div>

@@ -21,8 +21,12 @@
   color: white;
   font-weight: bold;
   padding: 1.2rem;
-  display: relative;
+  position: relative;
   text-align: center;
+}
+
+.logo-section-open {
+    border-radius: 0px 0px 20px 0px;
 }
 
 .logo-large {
@@ -36,16 +40,31 @@
 }
 
 .toggle-btn {
+  position: absolute;
   background: white;
   border: none;
   border-radius: 50%;
   font-size: 1.2rem;
   color: #FF544C;
   cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.toggle-btn-open {
+  right: -18px;
+  top: 55px;
+}
+
+.toggle-btn-closed {
+  right: -18px;
+  top: 58px;
+  transform: translate(-18px 58px);
 }
 
 .profile-section {
-  padding: 1.5rem 1rem 1rem;
+  padding: 1.5rem 1rem;
   border-bottom: 1px solid #eee;
   display: flex;
   justify-content: center;
@@ -53,11 +72,35 @@
   gap: 1rem;
 }
 
-.profile-section img {
+.avatar-section img {
   width: 80px;
   height: 80px;
   border-radius: 30%;
   object-fit: cover;
+}
+
+.uncollapsed-avatar {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.avatar-section {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e2e2e2;
+    border-radius: 10px;
+}
+
+.collapsed-avatar {
+    height: 8rem;
+    border: none;
 }
 
 .collapsed-avatar img {

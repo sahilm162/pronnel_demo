@@ -72,42 +72,88 @@
         </div>
         <div class="header-btn">
             <button class="btn btn-usertab">Org. Roles</button>
-            <button class="btn btn-usertab">Invite User</button>
+            <button class="btn btn-usertab" (click)="openAddUserDialog()">Invite User</button>
         </div>
     </div>
 
-    <table class="table table-striped mt-3">
-        <thead>
-            <tr class="table-header">
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Mobile</th>
-                <th>Create Date</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody class="table-body">
-            <tr *ngFor="let user of users">
-                <td>{{ user.first_name }} {{ user.last_name }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.role?.[0]?.role_name || 'N/A' }}</td>
-                <td>{{ user.mobile }}</td>
-                <td>{{ user.create_date | date: 'dd/MM/yyyy' }}</td>
-                <td>{{ user.status }}</td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            ⋮
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item text-danger" (click)="onDelete(user.user_id)">Delete</a></li>
-                            <li><a class="dropdown-item" (click)="onEdit(user.user_id)">Edit</a></li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        <table class="table table-striped mt-3">
+            <thead class="w-100 table-header">
+                <tr>
+                    <th>
+                        <div class="d-flex align-items-center">
+                            Name
+                            <span class="sort-icons ms-1">
+                                <i class="bi bi-caret-up-fill d-block lh-1"></i>
+                                <i class="bi bi-caret-down-fill d-block lh-1"></i>
+                            </span>
+                        </div>
+                        </th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Mobile</th>
+                        <th>
+                            <div class="d-flex align-items-center">
+                                Create Date
+                                <span class="sort-icons ms-1">
+                                    <i class="bi bi-caret-up-fill d-block lh-1"></i>
+                                    <i class="bi bi-caret-down-fill d-block lh-1"></i>
+                                </span>
+                            </div>
+                    </th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <tr *ngFor="let user of users">
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.role?.[0]?.role_name || 'N/A' }}</td>
+                    <td>{{ user.mobile?.mobile_number || 'N/A' }}</td>
+                    <td>{{ user.create_date || 'N/A'}}</td>
+                    <td>{{ user.status }}</td>
+                    <td>
+                        <div class="dropdown action-dropdown">
+                            <button class="btn icon-btn" type="button" data-bs-toggle="dropdown">
+                                ⋮
+                            </button>
+                            <ul class="dropdown-menu custom-dropdown shadow-sm">
+                                <li>
+                                    <a class="dropdown-item delete-action" (click)="confirmDelete(user?._id)">
+                                        <i class="bi bi-trash3-fill me-2"></i> Delete
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item edit-action" (click)="onEdit(user)">
+                                        <i class="bi bi-pencil-square me-2"></i> Edit
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</div>
+
+<app-edit-user-dialog
+  *ngIf="showUserDialog"
+  [isEdit]="isEdit"
+  [userData]="editUserData"
+  (close)="closeUserDialog()">
+</app-edit-user-dialog>
+
+<!-- Delete Confirmation Dialog -->
+<div *ngIf="showDeleteConfirm" class="delete-dialog-overlay" (click)="cancelDelete()">
+  <div class="delete-dialog-box" (click)="$event.stopPropagation()">
+    <div class="delete-dialog-header">
+      <h3>Confirm Delete</h3>
+    </div>
+    <p class="delete-dialog-content">Are you sure? <br>
+    This action will permanently delete the user.</p>
+    <div class="dialog-actions">
+        <button class="btn cancel-light" (click)="cancelDelete()">Cancel</button>
+      <button class="btn delete-btn" (click)="deleteUser()">Delete</button>
+    </div>
+  </div>
 </div>
