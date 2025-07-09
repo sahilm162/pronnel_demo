@@ -1,10 +1,8 @@
 <div class="dialog-overlay">
   <div class="dialog-box">
     <div class="dialog-header">
-      <h3>Invite User</h3>
-      <button class="close-btn" (click)="closeDialog()">
-        <i class="bi bi-x"></i>
-      </button>
+      <h3>Edit User</h3>
+      <button class="close-btn" (click)="closeDialog()"><i class="bi bi-x"></i></button>
     </div>
 
     <form [formGroup]="inviteForm" (ngSubmit)="updateUserProfile()" class="dialog-form">
@@ -16,25 +14,35 @@
 
       <label>
         Email
-        <input type="email" formControlName="email" placeholder="Enter Email" [readonly]="isEdit" />
-        <small *ngIf="inviteForm.get('email')?.touched && inviteForm.get('email')?.invalid">
-          Valid Email is required
-        </small>
+        <input type="email" formControlName="email" placeholder="Enter Email" readonly />
       </label>
 
       <div class="checkbox-group">
-        <span>Usertype:</span>
-        <div class="container-checkbox" style="display: flex; gap: 20px; margin-left: 10px;">
+        <label class="checkbox-heading">Usertype:</label>
+        <div class="chb-section">
           <label class="chb">
-            <input type="checkbox" formControlName="isAdmin" id="admin" />
-            Admin
+            <input
+              type="checkbox"
+              [checked]="inviteForm.get('role')?.value === 'ADMIN'"
+              (change)="onRoleChange('ADMIN')"
+            />
+            <span>Admin</span>
           </label>
+
           <label class="chb">
-            <input type="checkbox" formControlName="isUser" id="user" />
-            User
+            <input
+              type="checkbox"
+              [checked]="inviteForm.get('role')?.value === 'SALES'"
+              (change)="onRoleChange('SALES')"
+            />
+            <span>Sales</span>
           </label>
         </div>
       </div>
+
+      <small *ngIf="inviteForm.get('role')?.touched && inviteForm.get('role')?.invalid">
+        Role is required
+      </small>
 
       <div class="dialog-actions">
         <button type="submit" class="btn save-btn">Save</button>

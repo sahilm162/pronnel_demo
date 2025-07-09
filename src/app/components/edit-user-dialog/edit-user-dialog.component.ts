@@ -1,58 +1,43 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-
-interface UserImage {
-  url: string;
-}
-
-interface UserData {
-  name: string;
-  role: string;
-  image: UserImage | null;
-}
 
 @Component({
   selector: 'app-edit-user-dialog',
   templateUrl: './edit-user-dialog.component.html',
   styleUrls: ['./edit-user-dialog.component.css']
 })
-export class EditUserDialogComponent {
+export class EditUserDialogComponent implements OnChanges {
   @Input() userData: any;
   @Input() isEdit = false;
-  
   @Output() close = new EventEmitter<void>();
   @Output() userAdded = new EventEmitter<void>();
 
-  private readonly BASE_URL = environment.BASE_URL;  
-
-   user: UserData = {
-    name: '',
-    role: '',
-    image: null
-  };
-
+  readonly BASE_URL = environment.BASE_URL;
   inviteForm: FormGroup;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {
     this.inviteForm = this.fb.group({
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      isAdmin: [false],
-      isUser: [true]
+      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
+      role: ['', Validators.required]  // only 'ADMIN' or 'SALES'
     });
   }
 
   ngOnChanges(): void {
-    if (this.userData && this.isEdit) {
+    if (this.userData) {
       this.inviteForm.patchValue({
-        name: this.userData.name,
-        email: this.userData.email,
-        isAdmin: this.userData.role === 'Admin',
-        isUser: this.userData.role === 'User'
+        name: this.userData.name || '',
+        email: this.userData.email || '',
+        role: this.userData.role?.toUpperCase() === 'SALES' ? 'SALES' : 'ADMIN' // default to ADMIN
       });
     }
+  }
+
+  onRoleChange(role: 'ADMIN' | 'SALES') {
+    const currentRole = this.inviteForm.get('role')?.value;
+    this.inviteForm.get('role')?.setValue(currentRole === role ? '' : role);
   }
 
   closeDialog() {
@@ -62,24 +47,32 @@ export class EditUserDialogComponent {
   updateUserProfile(): void {
     if (this.inviteForm.invalid || !this.userData?._id) return;
 
-    const updateData = {
-    name: this.inviteForm.get('name')?.value,
-    email: this.inviteForm.get('email')?.value,
-    role: this.inviteForm.get('isAdmin')?.value ? 'Admin' : 'User',
-  };
-
-
+    const token = JSON.parse(localStorage.getItem('user') || '{}')?.token || '';
     const userId = this.userData._id;
 
-  this.http.put(`${this.BASE_URL}/user/${userId}`, updateData).subscribe({
-    next: (res) => {
-      console.log('User updated successfully:', res);
-      this.userAdded.emit();
-      this.close.emit();
-    },
-    error: (err) => {
-      console.error('Error updating user:', err);
-    }
-  });
-}
+    const updateData = {
+      name: this.inviteForm.get('name')?.value,
+      role: this.inviteForm.get('role')?.value,
+      title_id: null,
+      parent_users: []
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': token,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    this.http.patch(`${this.BASE_URL}/user/${userId}`, updateData, { headers })
+      .subscribe({
+        next: (res) => {
+          console.log('User updated successfully:', res);
+          this.userAdded.emit(); // to refresh table
+          this.close.emit();     // close the dialog
+        },
+        error: (err) => {
+          console.error('Error updating user:', err);
+        }
+      });
+  }
 }

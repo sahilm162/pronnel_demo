@@ -61,24 +61,37 @@
   color: red;
   font-size: 12px;
 }
+
 .checkbox-group {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-top: 0.75rem;
 }
 
-.container-checkbox {
+.checkbox-heading {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.chb-section {
   display: flex;
-  gap: 20px;
-  margin-left: 10px;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .chb {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
+.chb input {
+  margin-right: 0.3rem;
+  transform: translateY(1px);
+}
 .dialog-actions {
   display: flex;
   align-items: center;

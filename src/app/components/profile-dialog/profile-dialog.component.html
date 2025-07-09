@@ -30,17 +30,17 @@
         <div class="form-section">
             <div class="form-group">
                 <label class="form-label">Name</label>
-                <input type="text" class="form-control" [(ngModel)]="user.name" [value]="user?.name">
+                <input type="text" class="form-control" [(ngModel)]="user.name">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Phone No.</label>
-                <input type="text" class="form-control" placeholder="Enter Phone" disabled>
+                <input type="text" class="form-control" placeholder="Enter Phone" disabled [value]="user?.mobile?.mobile_number">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" placeholder="Enter Email" disabled>
+                <input type="email" class="form-control" placeholder="Enter Email" disabled [value]="user?.email">
             </div>
 
             <div class="form-group">
@@ -49,21 +49,25 @@
             </div>
         </div>
 
-    </div>
+    </div>  
 
     <div class="status-section">
-        <div class="form-group">
-            <label class="form-label">Status</label>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" id="active" name="status" class="form-check-input" checked>
-                    <label for="active" class="form-check-label">Active</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" id="inactive" name="status" class="form-check-input">
-                    <label for="inactive" class="form-check-label">Inactive</label>
-                </div>
-        </div>
+<div class="form-group">
+    <label class="form-label">Status</label>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="active" name="status" class="form-check-input" [checked]="user?.status === 'ACTIVE'"
+            (change)="setStatus('ACTIVE')" />
+        <label for="active" class="form-check-label">Active</label>
     </div>
+
+    <div class="form-check form-check-inline">
+        <input type="checkbox" id="inactive" name="status" class="form-check-input"
+            [checked]="user?.status === 'INACTIVE'" (change)="setStatus('INACTIVE')" />
+        <label for="inactive" class="form-check-label">Inactive</label>
+    </div>
+  </div>
+</div>
 
     <div class="dialog-footer">
         <div class="text-end">

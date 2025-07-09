@@ -81,9 +81,7 @@ editUserData: any = null;
         });
 
         const data = await res.json();
-        console.log('User API Response:', data);
         this.users = data?.responseData || [];
-        console.log('Fetched users:', this.users);
         this.totalUsers = data?.pagination_details?.total_records || 0;
       } catch (err) {
         console.error('User Fetch Error:', err);
@@ -91,21 +89,25 @@ editUserData: any = null;
     })();
   }
 
+  refreshUserList() {
+    this.loadUsers();
+  }
+
   toggleFilterPanel() {
-  this.isFilterOpen = !this.isFilterOpen;
-}
+    this.isFilterOpen = !this.isFilterOpen;
+  }
 
-closeFilterPanel() {
-  this.isFilterOpen = false;
-}
+  closeFilterPanel() {
+    this.isFilterOpen = false;
+  }
 
-applyFilters() {
-  console.log('Role:', this.filterRole);
-  console.log('Start Date:', this.startDate);
-  console.log('End Date:', this.endDate);
+  applyFilters() {
+    console.log('Role:', this.filterRole);
+    console.log('Start Date:', this.startDate);
+    console.log('End Date:', this.endDate);
 
-  this.closeFilterPanel();
-}
+    this.closeFilterPanel();
+  }
 
   onSearch(): void {
     console.log('Search triggered:', this.searchText);

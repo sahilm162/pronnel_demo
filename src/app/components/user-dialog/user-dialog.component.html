@@ -22,19 +22,24 @@
         </small>
       </label>
 
-      <div class="checkbox-group" style="display: flex; align-items: center; gap: 1rem;">
-        <label style="margin: 0; white-space: nowrap;">Usertype:</label>
-        <div style="display: flex; gap: 1.5rem;">
-          <label style="display: flex; align-items: center; gap: 0.4rem;">
-            <input type="checkbox" formControlName="isAdmin" id="admin1" />
+      <div class="checkbox-group">
+        <label class="checkbox-heading">Usertype:</label>
+        <div class="chb-section">
+          <label class="chb">
+            <input type="checkbox" [checked]="inviteForm.get('role')?.value === 'ADMIN'" (change)="onRoleChange('ADMIN')" />
             <span>Admin</span>
           </label>
-          <label style="display: flex; align-items: center; gap: 0.4rem;">
-            <input type="checkbox" formControlName="isUser" id="user1" />
-            <span>User</span>
+      
+          <label class="chb">
+            <input type="checkbox" [checked]="inviteForm.get('role')?.value === 'SALES'" (change)="onRoleChange('SALES')" />
+            <span>Sales</span>
           </label>
         </div>
       </div>
+      
+      <small *ngIf="inviteForm.get('role')?.touched && inviteForm.get('role')?.invalid">
+        Role is required
+      </small>
 
       <div class="dialog-actions">
         <button type="submit" class="btn invite-btn">Invite And Next</button>

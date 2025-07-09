@@ -1,6 +1,6 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -30,22 +30,30 @@ export class SidebarComponent implements OnInit {
   }
 
   loadUserImage(userId: string): void {
-    const url = `${environment.BASE_URL}/user/profileimage/query`;
-    const body = {
-      user_id: [userId]
-    };
+  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  const token = userData?.token || '';
 
-    this.http.post<any>(url, body).subscribe({
-      next: (res) => {
-        const image = res?.images?.[0];
-        this.profileImageUrl = image?.image_download_url || null;
-      },
-      error: (err) => {
-        console.error('Failed to load profile image', err);
-        this.profileImageUrl = null;
-      }
-    });
-  }
+  const url = `${environment.BASE_URL}/user/profileimage/query`;
+  const body = {
+    user_id: [userId]
+  };
+
+  const headers = new HttpHeaders({
+    'Authorization': token,
+    'Content-Type': 'application/json'
+  });
+
+  this.http.post<any>(url, body, { headers }).subscribe({
+    next: (res) => {
+      const image = res?.images?.[0];
+      this.profileImageUrl = image?.image_download_url || null;
+    },
+    error: (err) => {
+      console.error('Failed to load profile image', err);
+      this.profileImageUrl = null;
+    }
+  });
+}
 
  openAddUserDialog() {
   this.showInviteDialog = true;

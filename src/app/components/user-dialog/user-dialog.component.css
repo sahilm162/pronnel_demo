@@ -61,26 +61,36 @@
   color: red;
   font-size: 12px;
 }
+
 .checkbox-group {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  /* background-color: red; */
+  gap: 1rem;
+  margin-top: 0.75rem;
 }
 
-.container-checkbox {
-    background-color: aqua;
-    display: flex;
-    align-items: center;
-    border: #FF544C 2px solid;
-    gap: 20px;
+.checkbox-heading {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.chb-section {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .chb {
-  /* display: flex; */
-  /* align-items: center; */
-  gap: 6px;
-  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.chb input {
+  margin-right: 0.3rem;
+  transform: translateY(1px);
 }
 
 .dialog-actions {

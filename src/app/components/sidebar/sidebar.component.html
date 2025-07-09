@@ -1,14 +1,14 @@
 <div [class.collapsed]="isCollapsed" class="sidebar">
     <div class="logo-section">
   <span [ngClass]="isCollapsed ? 'logo-small' : 'logo-large'">logo</span>
-  <button
-    class="toggle-btn"
-    [ngClass]="isCollapsed ? 'toggle-btn-closed' : 'toggle-btn-open'"
-    (click)="toggleSidebar()"
-  >
-    <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
-  </button>
 </div>
+<button
+  class="toggle-btn"
+  [ngClass]="isCollapsed ? 'toggle-btn-closed' : 'toggle-btn-open'"
+  (click)="toggleSidebar()"
+>
+  <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
+</button>
 
     <div class="profile-section uncollapsed-avatar" *ngIf="!isCollapsed" (click)="onProfileClick()">
         <div class="avatar-section">

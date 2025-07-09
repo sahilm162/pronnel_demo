@@ -143,7 +143,12 @@
   (close)="closeUserDialog()">
 </app-edit-user-dialog>
 
-<!-- Delete Confirmation Dialog -->
+<app-user-dialog
+  *ngIf="showInviteDialog"
+  (close)="closeInviteDialog()"
+  (userAdded)="refreshUserList()"
+></app-user-dialog>
+
 <div *ngIf="showDeleteConfirm" class="delete-dialog-overlay" (click)="cancelDelete()">
   <div class="delete-dialog-box" (click)="$event.stopPropagation()">
     <div class="delete-dialog-header">
