@@ -14,6 +14,7 @@ export class AuthService {
 
   login(email: string, password: string) {
   const clientId = uuidv4()
+  localStorage.setItem('client_id', clientId);
   const body = {
     email: email,
     password: password,
@@ -23,9 +24,6 @@ export class AuthService {
   const headers = new HttpHeaders({
     'Content-Type': 'application/json'
   });
-
-  console.log('Login Payload:', body);
-console.log('Headers:', headers);
 
   return this.http.post(`${this.baseUrl}/user/login`, body, {
     headers,
@@ -53,7 +51,35 @@ console.log('Headers:', headers);
     this.router.navigate(['/login']);
   }
 
-  getUser() {
+  getUser(): any {
     return JSON.parse(localStorage.getItem('user') || '{}');
   }
+
+  logoutFromServer(): void {
+  const token = localStorage.getItem('x-auth-token') || '';
+  const client_id = localStorage.getItem('client_id') || '';
+
+  if (!client_id) {
+    console.warn('Client ID not found for logout');
+    return;
+  }
+
+  const headers = new HttpHeaders({
+    'Authorization': token,
+    'Content-Type': 'application/json'
+  });
+
+  const body = { client_id };
+
+  this.http.post(`${this.baseUrl}/user/logout`, body, { headers }).subscribe({
+    next: () => {
+      console.log('Successfully logged out from server');
+      this.logout();
+    },
+    error: (err) => {
+      console.error('Logout failed, proceeding with client logout:', err);
+      this.logout();
+    }
+  });
+}
 }

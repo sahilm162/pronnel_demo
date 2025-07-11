@@ -44,5 +44,19 @@
             <span *ngIf="!isCollapsed">User List</span>
         </a>
     </nav>
+
+<div class="sidebar-footer" (click)="toggleSettingsDropdown()" [class.collapsed-footer]="isCollapsed">
+    <i class="bi bi-gear"></i>
+    <span *ngIf="!isCollapsed">Settings</span>
+</div>
+
+</div>
+<div class="settings-dropdown" *ngIf="showSettingsDropdown" [class.dropdown-collapsed]="isCollapsed"
+    (clickOutside)="closeSettingsDropdown()">
+    <ul>
+        <li (click)="onChangePassword()">Change Password</li>
+        <li (click)="onForgotPassword()">Forgot Password</li>
+        <li (click)="onLogout()">Logout</li>
+    </ul>
 </div>
 <app-user-dialog *ngIf="showInviteDialog" (close)="closeInviteDialog()"></app-user-dialog>

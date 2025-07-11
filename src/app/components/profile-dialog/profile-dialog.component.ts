@@ -32,6 +32,7 @@ interface UserData {
 export class ProfileDialogComponent {
   @Input() userData: any;
   @Output() clickOutside = new EventEmitter<void>();
+  @Output() profileUpdated = new EventEmitter<void>();
   private readonly BASE_URL = environment.BASE_URL;  
 
   user: UserData = {
@@ -92,9 +93,14 @@ export class ProfileDialogComponent {
 
 
 updateUserProfile(): void {
-  const imagePath = this.user.image?.url;
   const token = JSON.parse(localStorage.getItem('user') || '{}')?.token || '';
-  
+  const userId = JSON.parse(localStorage.getItem('user') || '{}')?.user_id;
+
+  if (!userId) {
+    console.error('User ID not found.');
+    return;
+  }
+
   const headers = new HttpHeaders({
     'Authorization': token,
     'Content-Type': 'application/json',
@@ -102,64 +108,18 @@ updateUserProfile(): void {
   });
 
   const updateData = {
-  name: this.user.name,
-  image_path: imagePath?.trim() ? imagePath : 'https://yourdomain.com/default-avatar.png',
-  mobile: {
-    country_code: this.user.mobile?.country_code || '+91',
-    mobile_number: this.user.mobile?.mobile_number || ''
-  },
-  language: 'English',
-  new_email_signature: '',
-  reply_forward_email_signature: '',
-  notification: {
-    notification_type: 'push_notification',
-    notification_preference: {
-      activities: {
-        comment_on_assigned_item: { enabled: true },
-        comment_on_collaborated_item: { enabled: true },
-        mention: { enabled: true },
-        activity_on_assigned_item: { enabled: true },
-        activity_on_collaborated_item: { enabled: true },
-        activity_association_on_assigned_item: { enabled: true },
-        activity_association_on_collaborated_item: { enabled: true },
-        email_on_assigned_item: { enabled: true },
-        email_on_collaborated_item: { enabled: true }
-      },
-      items: {
-        item_created: { enabled: true },
-        item_updates_on_assigned_item: { enabled: true },
-        item_updates_on_collaborated_item: { enabled: true },
-        item_deleted: { enabled: true }
-      },
-      workfolders: {
-        collaboration_on_workfolder: { enabled: true },
-        role_changed_on_workfolder: { enabled: true },
-        board_creation_on_workfolder: { enabled: true }
-      },
-      notes: {
-        collaboration_on_note: { enabled: true },
-        tagged_in_note: { enabled: true }
-      }
-    }
-  },
-  theme: 'light',
-  work_schedule_assign: {
-    user_id: this.user._id || '',
-    work_schedule_id: '',
-    additionalProp1: {}
-  },
-  date_format: {
-    format: 'DD-MM-YYYY',
-    time_format: 'HH:mm'
-  }
-};
+    name: this.user.name,
+    role: this.user.role || 'ADMIN',
+    parent_users: []
+  };
 
-  this.http.put(`${this.BASE_URL}/user/profile`, updateData, { headers }).subscribe({
+  this.http.patch(`${this.BASE_URL}/user/${userId}`, updateData, { headers }).subscribe({
     next: (res) => {
-      console.log('User profile updated successfully', res);
+      console.log('User profile updated via PATCH:', res);
+      this.closeDialog();
     },
     error: (err) => {
-      console.error('Error updating user profile', err);
+      console.error('Error updating profile via PATCH:', err);
     }
   });
 }

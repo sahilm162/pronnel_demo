@@ -14,7 +14,6 @@ export class UsersComponent implements OnInit {
 
   users: any[] = [];
   currentPage = 1;
-  pageSize = 10;
   totalUsers = 0;
   searchText: string = '';
   isFilterOpen = false;
@@ -28,9 +27,11 @@ export class UsersComponent implements OnInit {
   showDeleteConfirm = false;
   selectedUserIdToDelete: string | null = null;
   showUserDialog = false;
-isEdit = false;
-editUserData: any = null;
-
+  isEdit = false;
+  editUserData: any = null;
+  selectedUser: any = null;
+  showEditDialog: boolean = false;
+  
 
   constructor(private userService: UserService, private auth: AuthService) {}
 
@@ -58,25 +59,7 @@ editUserData: any = null;
             "content-type": "application/json"
           },
           body: JSON.stringify({
-            user_id: [],
-            include_bot: true,
-            role: [],
-            is_deleted: [],
-            view_user_groups: true,
-            pagination_details: {
-              page_size: this.pageSize,
-              page_number: this.currentPage,
-              start_from: (this.currentPage - 1) * this.pageSize
-            },
-            sorting_details: {
-              sort_order: this.sortOrder,
-              sort_by: this.sortField
-            },
-            search_params: {
-              search_text: this.searchText,
-              search_columns: ["name"]
-            },
-            lead_id: ""
+            pagination_details: {}
           })
         });
 
@@ -152,7 +135,7 @@ editUserData: any = null;
     const token = localStorage.getItem('x-auth-token') || '';
 
     try {
-      const res = await fetch(`${this.BASE_URL}/${this.selectedUserIdToDelete}`, {
+      const res = await fetch(`${this.BASE_URL}/user/${this.selectedUserIdToDelete}`, {
         method: 'DELETE',
         headers: {
           'authorization': token,
@@ -179,13 +162,17 @@ editUserData: any = null;
   this.showUserDialog = true;
 }
 
-onEdit(user: any) {
-  this.isEdit = true;
-  this.editUserData = user;
-  this.showUserDialog = true;
-}
-
 closeUserDialog() {
   this.showUserDialog = false;
 }
+
+onEdit(user: any): void {
+  this.selectedUser = user;
+  this.showEditDialog = true;
+}
+
+closeEditDialog(): void {
+  this.showEditDialog = false;
+}
+
 }

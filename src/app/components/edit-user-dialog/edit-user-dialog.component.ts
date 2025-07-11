@@ -21,7 +21,7 @@ export class EditUserDialogComponent implements OnChanges {
     this.inviteForm = this.fb.group({
       name: ['', Validators.required],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
-      role: ['', Validators.required]  // only 'ADMIN' or 'SALES'
+      role: ['', Validators.required]
     });
   }
 
@@ -67,8 +67,8 @@ export class EditUserDialogComponent implements OnChanges {
       .subscribe({
         next: (res) => {
           console.log('User updated successfully:', res);
-          this.userAdded.emit(); // to refresh table
-          this.close.emit();     // close the dialog
+          this.userAdded.emit();
+          this.close.emit(); 
         },
         error: (err) => {
           console.error('Error updating user:', err);

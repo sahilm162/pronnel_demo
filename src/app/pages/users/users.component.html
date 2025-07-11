@@ -137,11 +137,12 @@
 </div>
 
 <app-edit-user-dialog
-  *ngIf="showUserDialog"
-  [isEdit]="isEdit"
-  [userData]="editUserData"
-  (close)="closeUserDialog()">
-</app-edit-user-dialog>
+  *ngIf="showEditDialog"
+  [userData]="selectedUser"
+  [isEdit]="true"
+  (userAdded)="loadUsers()"
+  (close)="closeEditDialog()"
+></app-edit-user-dialog>
 
 <app-user-dialog
   *ngIf="showInviteDialog"
