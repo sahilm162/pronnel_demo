@@ -12,7 +12,7 @@ export class EditUserDialogComponent implements OnChanges {
   @Input() userData: any;
   @Input() isEdit = false;
   @Output() close = new EventEmitter<void>();
-  @Output() userAdded = new EventEmitter<void>();
+  @Output() userAdded = new EventEmitter<any>();
 
   readonly BASE_URL = environment.BASE_URL;
   inviteForm: FormGroup;
@@ -30,7 +30,7 @@ export class EditUserDialogComponent implements OnChanges {
       this.inviteForm.patchValue({
         name: this.userData.name || '',
         email: this.userData.email || '',
-        role: this.userData.role?.toUpperCase() === 'SALES' ? 'SALES' : 'ADMIN' // default to ADMIN
+        role: this.userData.role?.toUpperCase() === 'SALES' ? 'SALES' : 'ADMIN'
       });
     }
   }
@@ -67,7 +67,8 @@ export class EditUserDialogComponent implements OnChanges {
       .subscribe({
         next: (res) => {
           console.log('User updated successfully:', res);
-          this.userAdded.emit();
+          const updatedUser = { ...this.userData, ...updateData };
+          this.userAdded.emit(updatedUser);
           this.close.emit(); 
         },
         error: (err) => {

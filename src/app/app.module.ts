@@ -19,6 +19,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { UserDialogComponent } from './components/user-dialog/user-dialog.component';
 import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
 import { ProfileDialogComponent } from './components/profile-dialog/profile-dialog.component';
+import { ChangePasswordDialogComponent } from './components/change-password-dialog/change-password-dialog.component';
+import { ForgotPasswordDialogComponent } from './components/forgot-password-dialog/forgot-password-dialog.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { ProfileDialogComponent } from './components/profile-dialog/profile-dial
     UserDialogComponent,
     EditUserDialogComponent,
     ProfileDialogComponent,
+    ChangePasswordDialogComponent,
+    ForgotPasswordDialogComponent,
   ],
   imports: [
     BrowserModule,

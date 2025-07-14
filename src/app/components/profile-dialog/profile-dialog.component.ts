@@ -1,103 +1,85 @@
 import { Component, EventEmitter, Output, Input, SimpleChanges } from '@angular/core';
-import { AuthService } from 'src/app/services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-
-interface UserImage {
-  url: string;
-}
-
-interface Mobile {
-  country_code: string;
-  mobile_number: string;
-}
-
-interface UserData {
-  _id?: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  image: UserImage | null;
-  mobile?: Mobile;
-}
-
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-profile-dialog',
   templateUrl: './profile-dialog.component.html',
   styleUrls: ['./profile-dialog.component.css']
 })
-
 export class ProfileDialogComponent {
-  @Input() userData: any;
   @Output() clickOutside = new EventEmitter<void>();
   @Output() profileUpdated = new EventEmitter<void>();
-  private readonly BASE_URL = environment.BASE_URL;  
+  @Output() userChanged = new EventEmitter<any>();
+  @Input() users: any[] = [];
+  currentUserId: string = '';
+  user: any = null;
 
-  user: UserData = {
-    name: '',
-    email: '',
-    mobile: {
-    country_code: '+91',
-    mobile_number: ''
-    },
-    role: '',
-    status: '',
-    image: null
-  };
+  private readonly BASE_URL = environment.BASE_URL;
 
-  defaultAvatar = 'assets/avatar-placeholder.jpg';
+  name: string = '';
+  role: string = 'ADMIN';
 
-  constructor(private auth: AuthService, private http: HttpClient) {
-    const currentUser = this.auth.getUser();
-    this.user.name = currentUser?.name || '';
-    this.user.mobile = currentUser?.mobile || {
-    country_code: '+91',
-    mobile_number: ''
-  };
-    this.user.email = currentUser?.email || '';
-    this.user.role = currentUser?.role || '';
-    this.user.status = currentUser?.status || 'ACTIVE';
-    this.user.image = currentUser?.image || null;
+constructor(private http: HttpClient, private userService: UserService) {}
+
+  ngOnInit(): void {
+  const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const token = localUser?.token || '';
+  const email = localUser?.email;
+
+  if (!token || !email) {
+    console.warn('User token or email not found.');
+    return;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['userData'] && this.userData) {
-      this.user.name = this.userData.name || '';
-      this.user.mobile = this?.userData?.mobile || {
-        country_code: '+91',
-        mobile_number: ''
-      };
-      this.user.email = this.userData.email || '';
-      this.user.role = this.userData.role || '';
-      this.user.status = this.userData.status || '';
-      this.user.image = this.userData.image || null;
-    } else {
-      const currentUser = this.auth.getUser();
-      this.user.name = currentUser?.name || '';
-      this.user.mobile = currentUser?.mobile || {
-        country_code: '+91',
-        mobile_number: ''
-      };
-      this.user.email = currentUser?.email || '';
-      this.user.role = currentUser?.role || '';
-      this.user.status = currentUser?.status || '';
-      this.user.image = currentUser?.image || null;
+  const headers = new HttpHeaders({
+    'Authorization': token,
+    'Content-Type': 'application/json'
+  });
+
+  const body = {
+    pagination_details: {},
+    search_params: {
+      search_text: email,
+      search_columns: ['email']
     }
-  }
+  };
 
-  setStatus(status: 'ACTIVE' | 'INACTIVE') {
+  this.http.post(`${this.BASE_URL}/user/query`, body, { headers }).subscribe({
+    next: (res: any) => {
+      const userData = res?.responseData?.[0];
+      if (userData) {
+        this.user = userData;
+        if (userData) {
+      userData.status = userData.status?.toUpperCase();
+      this.user = userData;
+    } else {
+      console.warn('User not found in API response.');
+    }
+      } else {
+        console.warn('User not found in API response.');
+      }
+    },
+    error: (err) => {
+      console.error('Error fetching user:', err);
+    }
+  });
+}
+
+setStatus(status: 'ACTIVE' | 'INACTIVE') {
+  if (this.user) {
     this.user.status = status;
   }
+}
 
+  updateUserProfile(): void {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const token = user?.token || '';
+  const userId = user?.user_id;
 
-updateUserProfile(): void {
-  const token = JSON.parse(localStorage.getItem('user') || '{}')?.token || '';
-  const userId = JSON.parse(localStorage.getItem('user') || '{}')?.user_id;
-
-  if (!userId) {
-    console.error('User ID not found.');
+  if (!userId || !token) {
+    console.error('User ID or token not found.');
     return;
   }
 
@@ -115,7 +97,8 @@ updateUserProfile(): void {
 
   this.http.patch(`${this.BASE_URL}/user/${userId}`, updateData, { headers }).subscribe({
     next: (res) => {
-      console.log('User profile updated via PATCH:', res);
+      this.userService.setCurrentUser({ ...this.user });
+      this.profileUpdated.emit();
       this.closeDialog();
     },
     error: (err) => {

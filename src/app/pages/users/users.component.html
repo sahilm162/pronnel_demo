@@ -23,7 +23,7 @@
                      </span>
                    </div>
                    <hr class="my-1" />
-                   <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold" (click)="applySort('created')">
+                   <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold" (click)="applySort('create_date')">
                      Create Date
                      <span>
                        <i class="bi bi-caret-up-fill d-block lh-1"></i>
@@ -108,9 +108,9 @@
                 <tr *ngFor="let user of users">
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.role?.[0]?.role_name || 'N/A' }}</td>
+                    <td>{{ user.role || 'N/A' }}</td>
                     <td>{{ user.mobile?.mobile_number || 'N/A' }}</td>
-                    <td>{{ user.create_date || 'N/A'}}</td>
+                    <td>{{ user.create_date | date: 'dd MMM yyyy' }}</td>
                     <td>{{ user.status }}</td>
                     <td>
                         <div class="dropdown action-dropdown">
@@ -147,7 +147,7 @@
 <app-user-dialog
   *ngIf="showInviteDialog"
   (close)="closeInviteDialog()"
-  (userAdded)="refreshUserList()"
+  (userAdded)="handleUserAdd($event)"
 ></app-user-dialog>
 
 <div *ngIf="showDeleteConfirm" class="delete-dialog-overlay" (click)="cancelDelete()">

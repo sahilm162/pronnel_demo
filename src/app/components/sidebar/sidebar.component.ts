@@ -16,6 +16,8 @@ export class SidebarComponent implements OnInit {
   profileImageUrl: string | null = null;
   showInviteDialog = false;
   showSettingsDropdown = false;
+  showChangePasswordDialog = false;
+  showForgotDialog = false;
 
   constructor(private auth: AuthService, private http: HttpClient) {}
 
@@ -78,20 +80,23 @@ closeSettingsDropdown(): void {
   this.showSettingsDropdown = false;
 }
 
-onChangePassword(): void {
-  console.log('Change Password clicked');
-  this.closeSettingsDropdown();
-}
-
-onForgotPassword(): void {
-  console.log('Forgot Password clicked');
-  this.closeSettingsDropdown();
-}
-
 onLogout(): void {
   this.closeSettingsDropdown(); 
   this.auth.logoutFromServer();
 }
 
+onChangePassword() {
+  this.showChangePasswordDialog = true;
+  this.closeSettingsDropdown();
 }
 
+closeChangePasswordDialog() {
+  this.showChangePasswordDialog = false;
+}
+
+onForgotPassword(): void {
+  this.showForgotDialog = true;
+  this.closeSettingsDropdown();
+}
+
+}

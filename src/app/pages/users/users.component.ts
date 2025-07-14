@@ -36,41 +36,65 @@ export class UsersComponent implements OnInit {
   constructor(private userService: UserService, private auth: AuthService) {}
 
   ngOnInit(): void {
-    this.loadUsers();
-  }
+  this.loadUsers();
+
+  this.userService.currentUser$.subscribe((updatedUser) => {
+    if (updatedUser?._id) {
+      const index = this.users.findIndex(u => u._id === updatedUser._id);
+      if (index !== -1) {
+        this.users[index] = { ...this.users[index], ...updatedUser };
+      }
+    }
+  });
+}
 
   loadUsers(): void {
-    const currentUser = this.auth.getUser();
-    const token = localStorage.getItem('x-auth-token') || '';
+  const currentUser = this.auth.getUser();
+  const token = localStorage.getItem('x-auth-token') || '';
+  const entityId = currentUser?.org_id;
 
-    const entityId = currentUser?.org_id;
-    if (!entityId) {
-      console.error('Entity ID not found. Cannot fetch users.');
-      return;
-    }
-
-    (async () => {
-      try {
-        const res = await fetch(`${this.BASE_URL}/user/query`, {
-          method: "POST",
-          headers: {
-            "accept": "application/json, text/plain, */*",
-            "authorization": token,
-            "content-type": "application/json"
-          },
-          body: JSON.stringify({
-            pagination_details: {}
-          })
-        });
-
-        const data = await res.json();
-        this.users = data?.responseData || [];
-        this.totalUsers = data?.pagination_details?.total_records || 0;
-      } catch (err) {
-        console.error('User Fetch Error:', err);
-      }
-    })();
+  if (!entityId) {
+    console.error('Entity ID not found. Cannot fetch users.');
+    return;
   }
+
+  const requestBody: any = {
+    pagination_details: {
+      page_size: 10,
+      page_number: this.currentPage,
+      start_from: (this.currentPage - 1) * 10
+    },
+    sorting_details: {
+      sort_order: this.sortOrder,
+      sort_by: this.sortField
+    }
+  };
+
+  if (this.searchText.trim()) {
+    requestBody.search_params = {
+      search_text: this.searchText.trim(),
+      search_columns: ['name', 'email']
+    };
+  }
+
+  fetch(`${this.BASE_URL}/user/query`, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json, text/plain, */*',
+      authorization: token,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(requestBody)
+  })
+    .then(res => res.json())
+    .then(data => {
+      this.users = data?.responseData || [];
+      this.totalUsers = data?.pagination_details?.total_records || 0;
+    })
+    .catch(err => {
+      console.error('User Fetch Error:', err);
+    });
+}
 
   refreshUserList() {
     this.loadUsers();
@@ -85,15 +109,10 @@ export class UsersComponent implements OnInit {
   }
 
   applyFilters() {
-    console.log('Role:', this.filterRole);
-    console.log('Start Date:', this.startDate);
-    console.log('End Date:', this.endDate);
-
     this.closeFilterPanel();
   }
 
   onSearch(): void {
-    console.log('Search triggered:', this.searchText);
     this.currentPage = 1;
     this.loadUsers();
   }
@@ -103,12 +122,12 @@ export class UsersComponent implements OnInit {
     this.sortOrder = this.sortOrder === 'ASC' ? 'DESC' : 'ASC';
   } else {
     this.sortField = field;
-    this.sortOrder = 'ASC'; 
+    this.sortOrder = 'ASC';
   }
 
-    console.log('Sorting by:', this.sortField, this.sortOrder);
-    this.loadUsers();
-  }
+  this.currentPage = 1;
+  this.loadUsers();
+}
 
   closeInviteDialog() {
     this.showInviteDialog = false;
@@ -129,6 +148,12 @@ export class UsersComponent implements OnInit {
     this.showDeleteConfirm = false;
   }
 
+  handleUserAdd(newUser: any) {
+  this.users.unshift(newUser);
+  this.totalUsers++;
+  this.closeInviteDialog();
+}
+
   async deleteUser(): Promise<void> {
     if (!this.selectedUserIdToDelete) return;
 
@@ -144,7 +169,8 @@ export class UsersComponent implements OnInit {
       });
 
       if (res.ok) {
-        console.log('User deleted');
+        this.users = this.users.filter(user => user._id !== this.selectedUserIdToDelete);
+        this.totalUsers -= 1;
         this.showDeleteConfirm = false;
         this.selectedUserIdToDelete = null;
         this.loadUsers();

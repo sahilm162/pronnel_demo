@@ -10,7 +10,7 @@
     <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()" class="dialog-form">
       <label>
         Name
-        <input type="text" formControlName="name" placeholder="Enter Name" />
+        <input #nameInput type="text" formControlName="name" placeholder="Enter Name" />
         <small *ngIf="inviteForm.get('name')?.touched && inviteForm.get('name')?.invalid">Name is required</small>
       </label>
 

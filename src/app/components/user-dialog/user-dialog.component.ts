@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -14,6 +14,9 @@ export class UserDialogComponent {
   private readonly BASE_URL = environment.BASE_URL;
   private readonly ORG_ID = environment.ORGANIZATION_ID;
 
+    @ViewChild('nameInput') nameInputRef!: ElementRef;
+
+
   inviteForm: FormGroup;
   isEdit = false; 
 
@@ -22,6 +25,12 @@ export class UserDialogComponent {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       role: ['', Validators.required]
+    });
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.nameInputRef?.nativeElement?.focus();
     });
   }
 

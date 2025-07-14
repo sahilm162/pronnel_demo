@@ -59,4 +59,10 @@
         <li (click)="onLogout()">Logout</li>
     </ul>
 </div>
+
 <app-user-dialog *ngIf="showInviteDialog" (close)="closeInviteDialog()"></app-user-dialog>
+
+<app-change-password-dialog *ngIf="showChangePasswordDialog" (closeDialog)="closeChangePasswordDialog()"></app-change-password-dialog>
+
+<app-forgot-password-dialog *ngIf="showForgotDialog"
+    (closeDialog)="showForgotDialog = false"></app-forgot-password-dialog>
