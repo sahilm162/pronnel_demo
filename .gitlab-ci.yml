@@ -1,32 +1,13 @@
-image: node:18
-
 stages:
   - build
-  - deploy
 
-cache:
-  paths:
-    - node_modules/
-
-before_script:
-  - npm install -g @angular/cli
-  - npm install
-
-build:
+build-app:
   stage: build
+  only:
+    - feature/profileScreen
   script:
-    - ng build --configuration=production --base-href="/$CI_PROJECT_NAME/"
+    - npm install
+    - npx ng build --configuration=production --base-href="/$CI_PROJECT_NAME/"
   artifacts:
     paths:
       - dist/
-
-pages:
-  stage: deploy
-  script:
-    - mkdir public
-    - cp -r dist/*/* public/
-  artifacts:
-    paths:
-      - public
-  only:
-    - feature/profileScreen
