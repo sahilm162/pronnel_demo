@@ -22,11 +22,19 @@ export class SidebarComponent implements OnInit {
   constructor(private auth: AuthService, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.user = this.auth.getUser();
-    if (this.user?.user_id) {
-      this.loadUserImage(this.user.user_id);
-    }
+  this.loadUserFromStorage();
+
+  window.addEventListener('user-updated', () => {
+    this.loadUserFromStorage();
+  });
+}
+
+loadUserFromStorage() {
+  this.user = this.auth.getUser();
+  if (this.user?.user_id) {
+    this.loadUserImage(this.user.user_id);
   }
+}
 
   toggleSidebar(): void {
     this.isCollapsed = !this.isCollapsed;

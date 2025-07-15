@@ -1,6 +1,7 @@
 <ng-container *ngIf="isLoggedIn(); else loginOnly">
   <app-sidebar (openProfileDialog)="showProfile = true"></app-sidebar>
   <app-profile-dialog *ngIf="showProfile" (clickOutside)="showProfile = false"></app-profile-dialog>
+  <app-toast *ngIf="toast.message" [message]="toast.message" [type]="toast.type"></app-toast>
   <div class="main-content">
     <router-outlet></router-outlet>
   </div>

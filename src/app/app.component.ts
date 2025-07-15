@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ToastService, ToastType } from './shared/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,18 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'Pronnel';
-  showProfile = false; 
+  showProfile = false;
+  toast = { message: '', type: 'success' as ToastType };
+
+  constructor(private toastService: ToastService) {
+    this.toastService.toast$.subscribe((data) => {
+      this.toast = data;
+
+      setTimeout(() => {
+        this.toast.message = '';
+      }, 3000);
+    });
+  }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('x-auth-token');

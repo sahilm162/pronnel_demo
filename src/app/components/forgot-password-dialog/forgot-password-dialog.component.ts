@@ -7,6 +7,7 @@ import {
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { ToastService } from 'src/app/shared/toast.service';
 
 @Component({
   selector: 'app-forgot-password-dialog',
@@ -21,7 +22,7 @@ export class ForgotPasswordDialogComponent implements OnInit {
   successMessage = '';
   readonly BASE_URL = environment.BASE_URL;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {}
+  constructor(private fb: FormBuilder, private http: HttpClient, private toast: ToastService) {}
 
   ngOnInit(): void {
     this.forgotForm = this.fb.group({
@@ -44,17 +45,21 @@ export class ForgotPasswordDialogComponent implements OnInit {
     this.http.post(`${this.BASE_URL}/user/forgotpassword`, body, { headers })
       .subscribe({
         next: (res: any) => {
-          this.successMessage = res.message || 'Check your email for reset instructions.';
+          this.toast.show(res.message || 'Check your email for reset instructions.', 'success');
           this.errorMessage = '';
+          setTimeout(() => this.closeDialog.emit(), 1500);
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Something went wrong.';
+          const errorMsg = err?.error?.message || 'Something went wrong.';
+          this.toast.show(errorMsg, 'error');
           this.successMessage = '';
+          setTimeout(() => this.closeDialog.emit(), 1500);
         }
       });
   }
 
   close() {
+    console.log("closeeeee")
     this.closeDialog.emit();
   }
 }

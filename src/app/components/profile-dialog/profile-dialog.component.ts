@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, Input, SimpleChanges } from '@angular/
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { UserService } from 'src/app/services/user.service';
+import { ToastService } from 'src/app/shared/toast.service';
 
 @Component({
   selector: 'app-profile-dialog',
@@ -21,7 +22,7 @@ export class ProfileDialogComponent {
   name: string = '';
   role: string = 'ADMIN';
 
-constructor(private http: HttpClient, private userService: UserService) {}
+constructor(private http: HttpClient, private userService: UserService, private toast: ToastService) {}
 
   ngOnInit(): void {
   const localUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -55,14 +56,15 @@ constructor(private http: HttpClient, private userService: UserService) {}
       userData.status = userData.status?.toUpperCase();
       this.user = userData;
     } else {
-      console.warn('User not found in API response.');
+      this.toast.show('User not found in API response.', 'error');
     }
       } else {
-        console.warn('User not found in API response.');
+        this.toast.show('User not found in API response.', 'error');
       }
     },
     error: (err) => {
-      console.error('Error fetching user:', err);
+      const errorMsg = err?.error?.message || 'Error fetching user';
+      this.toast.show(errorMsg, 'error');
     }
   });
 }
@@ -92,17 +94,23 @@ setStatus(status: 'ACTIVE' | 'INACTIVE') {
   const updateData = {
     name: this.user.name,
     role: this.user.role || 'ADMIN',
-    parent_users: []
+    parent_users: [],
   };
 
   this.http.patch(`${this.BASE_URL}/user/${userId}`, updateData, { headers }).subscribe({
     next: (res) => {
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      storedUser.name = this.user.name;
+      storedUser.role = this.user.role;
+      localStorage.setItem('user', JSON.stringify(storedUser));
+      window.dispatchEvent(new Event('user-updated'));
       this.userService.setCurrentUser({ ...this.user });
+      this.toast.show('Profile Updated successfully', 'success');
       this.profileUpdated.emit();
       this.closeDialog();
     },
     error: (err) => {
-      console.error('Error updating profile via PATCH:', err);
+      this.toast.show('Error updating profile', 'error');
     }
   });
 }

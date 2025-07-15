@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { ToastService } from 'src/app/shared/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -12,8 +13,9 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   showPassword: boolean = false;
   errorMessage = '';
+  showForgotDialog: boolean = false;
 
-  constructor(private fb: FormBuilder, private router: Router, private auth: AuthService) {
+  constructor(private fb: FormBuilder, private router: Router, private auth: AuthService, private toast: ToastService) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -45,16 +47,25 @@ export class LoginComponent implements OnInit {
 
     this.auth.login(email, password).subscribe({
       next: (res) => {
-        console.log('Login successful', res.body);
+        this.toast.show('Logged In successfully', 'success');
         this.auth.saveLoginData(res);
         setTimeout(() => {
         this.router.navigate(['/home']);
       }, 50);
       },
       error: (err) => {
-        console.log('error successful', err);
-        this.errorMessage = err.error?.message || 'Login failed. Please try again.';
+        const errorMsg = err?.error?.message || 'Login failed. Please try again.';
+        this.toast.show(errorMsg, 'error');
       }
     });
+  }
+
+  onForgotPasswordClick() {
+    this.showForgotDialog = true;
+  }
+
+  closeForgotDialog() {
+    console.log('closeForgotDialog called');
+    this.showForgotDialog = false;
   }
 }

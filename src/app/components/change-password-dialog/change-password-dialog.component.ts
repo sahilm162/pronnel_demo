@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, ElementRef, ViewChild, AfterViewInit, 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastService } from 'src/app/shared/toast.service';
 
 @Component({
   selector: 'app-change-password-dialog',
@@ -18,7 +19,7 @@ export class ChangePasswordDialogComponent {
   successMessage: string = '';
   BASE_URL = environment.BASE_URL;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private toast: ToastService) {
     this.passwordForm = this.fb.group({
       oldPassword: ['', Validators.required],
       newPassword: ['', Validators.required],
@@ -34,9 +35,6 @@ export class ChangePasswordDialogComponent {
 
   onSubmit(): void {
     const { oldPassword, newPassword, confirmPassword } = this.passwordForm.value;
-
-    this.errorMessage = '';
-    this.successMessage = '';
 
     if (newPassword !== confirmPassword) {
       this.errorMessage = "New password and confirm password do not match.";
@@ -57,12 +55,13 @@ export class ChangePasswordDialogComponent {
 
     this.http.post(`${this.BASE_URL}/user/changepassword`, body, { headers }).subscribe({
       next: () => {
-        this.successMessage = "Password changed successfully.";
+        this.toast.show('Password Changed successfully', 'success');
         this.passwordForm.reset();
         setTimeout(() => this.closeDialog.emit(), 1500);
       },
       error: (err) => {
-        this.errorMessage = err?.error?.message || "Failed to change password.";
+        const errorMsg = err?.error?.message || 'Failed to change password.';
+        this.toast.show(errorMsg, 'error');
       }
     });
   }

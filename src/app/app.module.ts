@@ -21,6 +21,7 @@ import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user
 import { ProfileDialogComponent } from './components/profile-dialog/profile-dialog.component';
 import { ChangePasswordDialogComponent } from './components/change-password-dialog/change-password-dialog.component';
 import { ForgotPasswordDialogComponent } from './components/forgot-password-dialog/forgot-password-dialog.component';
+import { ToastComponent } from './shared/toast/toast.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { ForgotPasswordDialogComponent } from './components/forgot-password-dial
     ProfileDialogComponent,
     ChangePasswordDialogComponent,
     ForgotPasswordDialogComponent,
+    ToastComponent,
   ],
   imports: [
     BrowserModule,

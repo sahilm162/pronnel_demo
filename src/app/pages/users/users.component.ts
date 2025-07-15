@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { environment } from 'src/environments/environment';
+import { ToastService } from 'src/app/shared/toast.service';
 
 @Component({
   selector: 'app-users',
@@ -33,7 +34,7 @@ export class UsersComponent implements OnInit {
   showEditDialog: boolean = false;
   
 
-  constructor(private userService: UserService, private auth: AuthService) {}
+  constructor(private userService: UserService, private auth: AuthService, private toast: ToastService) {}
 
   ngOnInit(): void {
   this.loadUsers();
@@ -59,15 +60,7 @@ export class UsersComponent implements OnInit {
   }
 
   const requestBody: any = {
-    pagination_details: {
-      page_size: 10,
-      page_number: this.currentPage,
-      start_from: (this.currentPage - 1) * 10
-    },
-    sorting_details: {
-      sort_order: this.sortOrder,
-      sort_by: this.sortField
-    }
+    pagination_details: {}
   };
 
   if (this.searchText.trim()) {
@@ -173,12 +166,12 @@ export class UsersComponent implements OnInit {
         this.totalUsers -= 1;
         this.showDeleteConfirm = false;
         this.selectedUserIdToDelete = null;
-        this.loadUsers();
+        this.toast.show('User Deleted successfully', 'success');
       } else {
-        console.error('Failed to delete user:', await res.text());
+        this.toast.show('Failed to delete user.', 'error');
       }
     } catch (err) {
-      console.error('Delete error:', err);
+      this.toast.show('Something went wrong while deleting.', 'error');
     }
   }
 

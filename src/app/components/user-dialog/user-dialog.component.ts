@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, ViewChild, ElementRef, AfterViewInit }
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { ToastService } from 'src/app/shared/toast.service';
 
 @Component({
   selector: 'app-user-dialog',
@@ -11,16 +12,15 @@ import { environment } from 'src/environments/environment';
 export class UserDialogComponent {
   @Output() close = new EventEmitter<void>();
   @Output() userAdded = new EventEmitter<void>();
+
   private readonly BASE_URL = environment.BASE_URL;
   private readonly ORG_ID = environment.ORGANIZATION_ID;
 
-    @ViewChild('nameInput') nameInputRef!: ElementRef;
-
-
+  @ViewChild('nameInput') nameInputRef!: ElementRef;
   inviteForm: FormGroup;
   isEdit = false; 
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private toast: ToastService) {
     this.inviteForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -39,18 +39,30 @@ export class UserDialogComponent {
   }
 
   onRoleChange(role: 'ADMIN' | 'SALES') {
-  const currentRole = this.inviteForm.get('role')?.value;
-
-  if (currentRole === role) {
-    this.inviteForm.get('role')?.setValue('');
-  } else {
-    this.inviteForm.get('role')?.setValue(role);
+    const currentRole = this.inviteForm.get('role')?.value;
+    this.inviteForm.get('role')?.setValue(currentRole === role ? '' : role);
   }
-} 
 
   onSubmit() {
   if (this.inviteForm.invalid) return;
 
+  this.sendInviteRequest(() => {
+    this.userAdded.emit();
+    this.toast.show('User invited successfully', 'success');
+    this.close.emit();
+  });
+}
+
+onInviteAndNext() {
+  if (this.inviteForm.invalid) return;
+
+  this.sendInviteRequest(() => {
+    this.toast.show('User invited successfully', 'success');
+    this.inviteForm.reset();
+  });
+}
+
+private sendInviteRequest(callback: () => void) {
   const userData = JSON.parse(localStorage.getItem('user') || '{}');
   const token = userData?.token || '';
 
@@ -72,16 +84,13 @@ export class UserDialogComponent {
 
   this.http.post(`${this.BASE_URL}/organisation/${this.ORG_ID}/user`, formValue, { headers })
     .subscribe({
-      next: (res) => {
-        console.log('User invited successfully:', res);
-        this.close.emit();
+      next: () => {
+        callback();
       },
       error: (err) => {
-        console.error('Error inviting user:', err);
+        const errorMsg = err?.error?.message || 'Failed to invite user';
+        this.toast.show(errorMsg, 'error');
       }
     });
-
-    this.userAdded.emit();
-    this.close.emit();
 }
 }
