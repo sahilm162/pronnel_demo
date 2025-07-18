@@ -18,10 +18,14 @@ export class SidebarComponent implements OnInit {
   showSettingsDropdown = false;
   showChangePasswordDialog = false;
   showForgotDialog = false;
+  isMobile: boolean = false;
+isMobileSidebarOpen: boolean = false;
 
   constructor(private auth: AuthService, private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.checkScreen();
+  window.addEventListener('resize', this.checkScreen.bind(this));
   this.loadUserFromStorage();
 
   window.addEventListener('user-updated', () => {
@@ -36,9 +40,23 @@ loadUserFromStorage() {
   }
 }
 
-  toggleSidebar(): void {
-    this.isCollapsed = !this.isCollapsed;
+  checkScreen() {
+  this.isMobile = window.innerWidth < 821;
+  if (!this.isMobile) this.isMobileSidebarOpen = false;
+}
+
+toggleSidebar(open?: boolean) {
+  if (this.isMobile) {
+    this.isMobileSidebarOpen = open ?? !this.isMobileSidebarOpen;
+    this.isCollapsed = false;
+  } else {
+    if (typeof open === 'boolean') {
+      this.isCollapsed = !open;
+    } else {
+      this.isCollapsed = !this.isCollapsed;
+    }
   }
+}
 
   loadUserImage(userId: string): void {
   const userData = JSON.parse(localStorage.getItem('user') || '{}');

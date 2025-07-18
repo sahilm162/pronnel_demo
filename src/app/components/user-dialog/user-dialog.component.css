@@ -14,7 +14,8 @@
 .dialog-box {
   background: white;
   border-radius: 8px;
-  width: 35%;
+  width: 90%;
+  max-width: 500px;
   padding: 20px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
@@ -93,6 +94,12 @@
   transform: translateY(1px);
 }
 
+small {
+  color: red;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
 .dialog-actions {
   display: flex;
   align-items: center;
@@ -111,4 +118,10 @@
 .invite-btn {
     background-color: #FF544C;
     color: white;
+}
+
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
+  }
 }

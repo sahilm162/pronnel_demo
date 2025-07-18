@@ -87,6 +87,12 @@
   font-size: 1.1rem;
 }
 
+@media (max-width: 768px) {
+  .filter-panel {
+    width: 300px;
+  }
+}
+
 .close-btn {
   background: transparent;
   border: none;
@@ -275,9 +281,7 @@ th:nth-child(7), td:nth-child(7) { width: 10%; text-align: center; }
 
 .delete-dialog-box {
   background: white;
-  /* padding: 2rem; */
   border-radius: 10px;
-  /* text-align: center; */
   width: 500px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
@@ -313,4 +317,96 @@ th:nth-child(7), td:nth-child(7) { width: 10%; text-align: center; }
   background-color: #f44336;
   color: white;
   border-radius: 50px;
+}
+
+.user-list-container {
+  padding: 1rem;
+}
+
+.user-card {
+  background: #f4f4f4;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  transition: box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.user-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.user-summary {
+  font-size: 1rem;
+}
+
+.user-initial {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #f44336;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.user-details {
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.user-details p {
+  margin: 0.3rem 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-actions {
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.btn-edit {
+  background-color: #2E4765;
+  color: white;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: white;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .user-card {
+    padding: 0.8rem;
+  }
+
+  .user-initial {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .btn-edit, .btn-delete {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
 }

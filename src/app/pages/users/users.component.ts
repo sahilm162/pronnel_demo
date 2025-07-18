@@ -32,11 +32,16 @@ export class UsersComponent implements OnInit {
   editUserData: any = null;
   selectedUser: any = null;
   showEditDialog: boolean = false;
+  expandedUser: any = null;
+  isMobileView: boolean = false;
+  showMobileSearch: boolean = false;
   
 
   constructor(private userService: UserService, private auth: AuthService, private toast: ToastService) {}
 
   ngOnInit(): void {
+    this.checkScreenSize();
+  window.addEventListener('resize', this.checkScreenSize.bind(this));
   this.loadUsers();
 
   this.userService.currentUser$.subscribe((updatedUser) => {
@@ -47,6 +52,14 @@ export class UsersComponent implements OnInit {
       }
     }
   });
+}
+
+checkScreenSize() {
+  this.isMobileView = window.innerWidth < 821;
+}
+
+toggleMobileSearch() {
+  this.showMobileSearch = !this.showMobileSearch;
 }
 
   loadUsers(): void {
@@ -122,9 +135,17 @@ export class UsersComponent implements OnInit {
   this.loadUsers();
 }
 
+openInviteDialog() {
+    this.showInviteDialog = true;
+  }
+
   closeInviteDialog() {
     this.showInviteDialog = false;
   }
+
+  toggleExpanded(user: any) {
+  this.expandedUser = this.expandedUser === user ? null : user;
+}
 
   handleUserChange() {
     this.loadUsers();
@@ -174,16 +195,6 @@ export class UsersComponent implements OnInit {
       this.toast.show('Something went wrong while deleting.', 'error');
     }
   }
-
-  openAddUserDialog() {
-  this.isEdit = false;
-  this.editUserData = null;
-  this.showUserDialog = true;
-}
-
-closeUserDialog() {
-  this.showUserDialog = false;
-}
 
 onEdit(user: any): void {
   this.selectedUser = user;

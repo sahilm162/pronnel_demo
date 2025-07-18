@@ -44,6 +44,7 @@ export class UserDialogComponent {
   }
 
   onSubmit() {
+  this.inviteForm.markAllAsTouched();
   if (this.inviteForm.invalid) return;
 
   this.sendInviteRequest(() => {
@@ -54,6 +55,7 @@ export class UserDialogComponent {
 }
 
 onInviteAndNext() {
+  this.inviteForm.markAllAsTouched();
   if (this.inviteForm.invalid) return;
 
   this.sendInviteRequest(() => {

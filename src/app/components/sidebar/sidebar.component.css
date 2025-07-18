@@ -1,7 +1,7 @@
 .sidebar {
   width: 260px;
   background-color: #ffffff;
-  height: 100vh;
+  height: 100%;
   transition: width 0.3s ease;
   overflow: hidden;
   position: fixed;
@@ -225,4 +225,57 @@
 
 .settings-dropdown li:hover {
   background-color: #f0f0f0;
+}
+
+.top-header {
+  background-color: #f44336;
+  height: 60px;
+}
+
+.hamburger-icon {
+  background: transparent;
+  border: none;
+  color: white;
+}
+
+.notification-icon {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-weight: 500;
+}
+
+.sidebar.mobile-open {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background-color: white;
+  z-index: 2000;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+}
+
+.logout-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  width: 90%;
 }
