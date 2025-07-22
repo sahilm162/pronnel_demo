@@ -1,28 +1,43 @@
 <div class="top-header d-flex justify-content-between align-items-center px-3 py-2" *ngIf="isMobile">
-  <button class="hamburger-icon" (click)="toggleSidebar(true)">
-    <i class="bi bi-list" style="font-size: 1.6rem;"></i>
-  </button>
-  <div class="notification-icon">
-    <i class="bi bi-bell-fill text-white me-1"></i>
-  </div>
+    <button class="hamburger-icon" (click)="toggleSidebar(true)">
+        <i class="bi bi-list" style="font-size: 1.6rem;"></i>
+    </button>
+    <div class="notification-icon">
+        <i class="bi bi-bell-fill text-white me-1"></i>
+    </div>
 </div>
 
 
-<div class="sidebar" *ngIf="!isMobile || isMobileSidebarOpen"
-  [ngClass]="{
+<div class="sidebar" *ngIf="!isMobile || isMobileSidebarOpen" [ngClass]="{
     'sidebar': true,
     'collapsed': isCollapsed,
     'mobile-overlay': isMobile && isMobileSidebarOpen
   }">
-  
+
     <div class="logo-section d-none d-md-block">
         <span [ngClass]="isCollapsed ? 'logo-small' : 'logo-large'">logo</span>
     </div>
-    <button class="toggle-btn" [ngClass]="isCollapsed ? 'toggle-btn-closed' : 'toggle-btn-open'" (click)="toggleSidebar()">
+    <button class="toggle-btn" [ngClass]="isCollapsed ? 'toggle-btn-closed' : 'toggle-btn-open'"
+        (click)="toggleSidebar()">
         <i [class]="isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left'"></i>
     </button>
-    
-    <div class="profile-section uncollapsed-avatar d-md-none" *ngIf="!isCollapsed" (click)="onProfileClick()">
+
+    <div class="profile-section uncollapsed-avatar d-none d-md-flex" *ngIf="!isCollapsed && !isMobile"
+        (click)="onProfileClick()">
+        <div class="avatar-section">
+            <img *ngIf="profileImageUrl; else avatar" [src]="profileImageUrl" alt="Profile" />
+            <ng-template #avatar>
+                <div class="avatar-placeholder">{{ user?.name?.[0] }}</div>
+            </ng-template>
+        </div>
+        <div class="details-section">
+            <h6>{{user?.name}}</h6>
+            <span>{{user?.role}}</span>
+        </div>
+    </div>
+
+    <div class="profile-section uncollapsed-avatar d-md-none" *ngIf="!isCollapsed && isMobile"
+        (click)="onProfileClick()">
         <div class="avatar-section">
             <img *ngIf="profileImageUrl; else avatar" [src]="profileImageUrl" alt="Profile" />
             <ng-template #avatar>
@@ -61,29 +76,31 @@
         <a class="mobile-link" (click)="onForgotPassword()" *ngIf="isMobile">
             <i class="bi bi-question-circle"></i> Forgot Password
         </a>
-    
+
         <a class="logout-btn" (click)="onLogout()" *ngIf="isMobile">
             <i class="bi bi-box-arrow-right"></i> Logout
         </a>
     </nav>
-    <div class="sidebar-footer" (click)="toggleSettingsDropdown()" [class.collapsed-footer]="isCollapsed" *ngIf="!isMobile">
+    <div class="sidebar-footer" (click)="toggleSettingsDropdown()" [class.collapsed-footer]="isCollapsed"
+        *ngIf="!isMobile">
         <i class="bi bi-gear"></i>
         <span *ngIf="!isCollapsed">Settings</span>
     </div>
-    
-    </div>
-    <div class="settings-dropdown" *ngIf="showSettingsDropdown" [class.dropdown-collapsed]="isCollapsed"
-        (clickOutside)="closeSettingsDropdown()">
-        <ul>
-            <li (click)="onChangePassword()">Change Password</li>
-            <li (click)="onForgotPassword()">Forgot Password</li>
-            <li (click)="onLogout()">Logout</li>
-        </ul>
-    </div>
+
+</div>
+<div class="settings-dropdown" *ngIf="showSettingsDropdown" [class.dropdown-collapsed]="isCollapsed"
+    (clickOutside)="closeSettingsDropdown()">
+    <ul>
+        <li (click)="onChangePassword()">Change Password</li>
+        <li (click)="onForgotPassword()">Forgot Password</li>
+        <li (click)="onLogout()">Logout</li>
+    </ul>
+</div>
 
 <app-user-dialog *ngIf="showInviteDialog" (close)="closeInviteDialog()"></app-user-dialog>
 
-<app-change-password-dialog *ngIf="showChangePasswordDialog" (closeDialog)="closeChangePasswordDialog()"></app-change-password-dialog>
+<app-change-password-dialog *ngIf="showChangePasswordDialog"
+    (closeDialog)="closeChangePasswordDialog()"></app-change-password-dialog>
 
 <app-forgot-password-dialog *ngIf="showForgotDialog"
     (closeDialog)="showForgotDialog = false"></app-forgot-password-dialog>
