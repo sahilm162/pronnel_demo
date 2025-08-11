@@ -7,14 +7,14 @@ img {
 }
 
 .btn-custom {
-  background-color: #2E4765;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--opp-text-color);
   opacity: 1;
 }
 
 .btn-custom-outlined {
-    border-color: #2E4765;
-    color: #2E4765;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
 input.form-control {

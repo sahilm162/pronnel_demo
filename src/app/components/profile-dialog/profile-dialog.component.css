@@ -10,12 +10,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
+  background: var(--card-color);
   border-radius: 10px;
   max-width: 1000px;
   width: 90%;
   z-index: 1000;
   box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+  color: var(--text-color);
 }
 
 .dialog-header {
@@ -23,12 +24,12 @@
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   width: 100%;
+  background-color: var(--accent-color);
 }
 
 .dialog-header h5 {
   margin: 0;
   font-weight: 600;
-  color: #333;
 }
 
 .dialog-body {
@@ -71,7 +72,7 @@ opacity: 0.35;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(177, 177, 177, 0.6);
+  background-color: var(--bg-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,11 +102,12 @@ opacity: 0.35;
 }
 
 .avatar-btn {
-background: var(--unnamed-color-ffffff) 0% 0% no-repeat padding-box;
-background: #FFFFFF 0% 0% no-repeat padding-box;
+background: var(--bg-color) 0% 0% no-repeat padding-box;
+background: var(--bg-color) 0% 0% no-repeat padding-box;
 border: 1px solid #707070;
 border-radius: 22px;
 opacity: 1;
+color: var(--text-color);
 }
 
 .form-section {
@@ -129,9 +131,10 @@ opacity: 1;
   padding: 0.6rem 0.75rem;
   font-size: 0.95rem;
   border: 1px solid #ccc;
-  background: #EAEAEA 0% 0% no-repeat padding-box;
+  background: var(--card-color) 0% 0% no-repeat padding-box;
 border-radius: 4px;
 opacity: 1;
+color: var(--text-color);
 }
 
 .form-check-inline {
@@ -150,6 +153,12 @@ opacity: 1;
 .dialog-footer {
     padding: 1rem;
     border-top: 1px solid #ccc;
+}
+
+.btn {
+  background-color: var(--accent-color);
+  border-radius: 50px;
+  padding: 0.5rem 2rem;
 }
 
 @media (max-width: 768px) {
@@ -205,6 +214,7 @@ opacity: 1;
   }
 
   .btn-danger {
+    background-color: var(--accent-color);
     width: 100%;
   }
 }

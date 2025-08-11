@@ -20,6 +20,7 @@ export class SidebarComponent implements OnInit {
   showForgotDialog = false;
   isMobile: boolean = false;
 isMobileSidebarOpen: boolean = false;
+showThemeDialog = false;
 
   constructor(private auth: AuthService, private http: HttpClient) {}
 
@@ -123,6 +124,10 @@ closeChangePasswordDialog() {
 onForgotPassword(): void {
   this.showForgotDialog = true;
   this.closeSettingsDropdown();
+}
+
+toggleThemeDialog() {
+  this.showThemeDialog = true;
 }
 
 }

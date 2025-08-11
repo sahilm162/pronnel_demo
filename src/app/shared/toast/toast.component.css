@@ -21,7 +21,7 @@
 }
 
 .toast.error {
-  background-color: #dc3545;
+  background-color: var(--unnamed-color-ff544c);
 }
 
 @keyframes fadein {

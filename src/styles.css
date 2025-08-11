@@ -2,9 +2,133 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 :root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --opp-text-color: #ffffff;
+  --primary-color: #2E4765;
+  --accent-color: #FF544C;
+  --card-color: #f5f5f5;
+}
 
-/* Colors: */
---unnamed-color-2e4765: #2E4765;
---unnamed-color-ffffff: #FFFFFF;
---unnamed-color-ff544c: #FF544C;
+body.light-default {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --primary-color: #2E4765;
+  --accent-color: #FF544C;
+  --card-color: #f9f9f9;
+}
+
+body.light-blue {
+  --bg-color: #e6f0ff;
+  --text-color: #002244;
+  --primary-color: #007BFF;
+  --accent-color: #66b2ff;
+  --card-color: #ffffff;
+}
+
+body.light-green {
+  --bg-color: #eaffea;
+  --text-color: #003300;
+  --primary-color: #28a745;
+  --accent-color: #8fd19e;
+  --card-color: #ffffff;
+}
+
+body.light-purple {
+  --bg-color: #f5f0ff;
+  --text-color: #2e003e;
+  --primary-color: #6f42c1;
+  --accent-color: #bfa3f2;
+  --card-color: #ffffff;
+}
+
+body.light-sunset {
+  --bg-color: #fff7f0;
+  --text-color: #5a2a00;
+  --primary-color: #ff8552;
+  --accent-color: #ff3c38;
+  --card-color: #fff2e6;
+}
+
+body.light-mint {
+  --bg-color: #e6fff5;
+  --text-color: #004d3b;
+  --primary-color: #00b894;
+  --accent-color: #55efc4;
+  --card-color: #ffffff;
+}
+
+body.dark-default {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --primary-color: #1f1f1f;
+  --accent-color: #FF544C;
+  --card-color: #1e1e1e;
+}
+
+body.dark-blue {
+  --bg-color: #0a192f;
+  --text-color: #cfd8dc;
+  --primary-color: #112240;
+  --accent-color: #64ffda;
+  --card-color: #1c2a3a;
+}
+
+body.dark-green {
+  --bg-color: #10221b;
+  --text-color: #dcedc8;
+  --primary-color: #1b4332;
+  --accent-color: #81c784;
+  --card-color: #153c2e;
+}
+
+body.dark-purple {
+  --bg-color: #1a1125;
+  --text-color: #e0d7ec;
+  --primary-color: #311b92;
+  --accent-color: #9575cd;
+  --card-color: #2a1b3d;
+}
+
+body.dark-woodland {
+  --bg-color: #1e2d24;
+  --text-color: #e8f5e9;
+  --primary-color: #2e7d32;
+  --accent-color: #a5d6a7;
+  --card-color: #263b32;
+}
+
+body.dark-galaxy {
+  --bg-color: #0d0f2b;
+  --text-color: #f0f0f0;
+  --primary-color: #5c6bc0;
+  --accent-color: #ff4081;
+  --card-color: #1a1c3b;
+}
+
+
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.card {
+  background-color: var(--card-color);
+  color: var(--text-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+}
+
+.btn-accent {
+  background-color: var(--accent-color);
+  color: #fff;
+  border: none;
 }

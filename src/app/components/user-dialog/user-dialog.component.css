@@ -12,7 +12,7 @@
 }
 
 .dialog-box {
-  background: white;
+  background: var(--card-color);
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
@@ -24,8 +24,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  background: #FF544C;
+  color: var(--opp-text-color);
+  background: var(--accent-color);
   padding: 12px;
   border-radius: 8px 8px 0 0;
   margin: -20px -20px 20px;
@@ -39,14 +39,14 @@
   background: transparent;
   border: none;
   font-size: 20px;
-  color: white;
+  color: var(--opp-text-color);
   cursor: pointer;
 }
 
 .dialog-form label {
   display: block;
   margin-bottom: 16px;
-  color: #333;
+  color: var(--text-color);
   font-weight: 500;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .dialog-form small {
-  color: red;
+  color: var(--accent-color);
   font-size: 12px;
 }
 
@@ -95,7 +95,7 @@
 }
 
 small {
-  color: red;
+  color: var(--accent-color);
   font-size: 12px;
   margin-top: 4px;
 }
@@ -116,8 +116,8 @@ small {
 }
 
 .invite-btn {
-    background-color: #FF544C;
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--opp-text-color);
 }
 
 @media (max-width: 480px) {

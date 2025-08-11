@@ -1,12 +1,11 @@
 .sidebar {
   width: 260px;
-  background-color: #ffffff;
+  background-color: var(--bg-color);
   height: 100%;
   transition: width 0.3s ease;
   overflow: hidden;
   position: fixed;
   box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
-  position: fixed;
   top: 0;
   left: 0;
   z-index: 999
@@ -17,8 +16,8 @@
 }
 
 .logo-section {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--text-color);
   font-weight: bold;
   padding: 1.2rem;
   position: relative;
@@ -47,11 +46,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: var(--bg-color);
   border: none;
   border-radius: 50%;
   font-size: 1.2rem;
-  color: #FF544C;
+  color: var(--accent-color);
   cursor: pointer;
   z-index: 1100;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -99,7 +98,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #e2e2e2;
+    background-color: var(--card-color);
     border-radius: 10px;
 }
 
@@ -123,7 +122,7 @@
 
 .profile-section span {
   font-size: 0.75rem;
-  color: #777;
+  color: var(--opp-text-color);
 }
 
 .menu {
@@ -146,7 +145,7 @@
   align-items: center;
   padding: 0.75rem 1rem;
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
   font-size: 1rem;
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.2s;
@@ -177,7 +176,7 @@
   align-items: center;
   padding: 0.75rem 1rem;
   cursor: pointer;
-  color: #333;
+  color: var(--text-color);
   border-top: 1px solid #eee;
   transition: background 0.2s;
 }
@@ -197,10 +196,10 @@
 }
 
 .settings-dropdown {
-  position: absolute;
+  position: fixed;
   left: 20px;
   bottom: 80px;
-  background-color: #fff;
+  background-color: var(--accent-color);
   border-radius: 8px;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
   z-index: 2000;
@@ -224,24 +223,24 @@
 }
 
 .settings-dropdown li:hover {
-  background-color: #f0f0f0;
+  background-color: var(--bg-color);
 }
 
 .top-header {
-  background-color: #f44336;
+  background-color: var(--accent-color);
   height: 60px;
 }
 
 .hamburger-icon {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--opp-text-color);
 }
 
 .notification-icon {
   display: flex;
   align-items: center;
-  color: white;
+  color: var(--opp-text-color);
   font-weight: 500;
 }
 
@@ -251,7 +250,7 @@
   left: 0;
   width: 260px;
   height: 100vh;
-  background-color: white;
+  background-color: var(--bg-color);
   z-index: 2000;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
 }
@@ -266,8 +265,8 @@
 }
 
 .logout-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--opp-text-color);
   padding: 10px 1rem;
   border-radius: 8px;
   display: flex;

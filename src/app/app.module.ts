@@ -12,16 +12,13 @@ import { UsersComponent } from './pages/users/users.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { LoginComponent } from './pages/login/login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
 import { UserDialogComponent } from './components/user-dialog/user-dialog.component';
 import { EditUserDialogComponent } from './components/edit-user-dialog/edit-user-dialog.component';
 import { ProfileDialogComponent } from './components/profile-dialog/profile-dialog.component';
 import { ChangePasswordDialogComponent } from './components/change-password-dialog/change-password-dialog.component';
 import { ForgotPasswordDialogComponent } from './components/forgot-password-dialog/forgot-password-dialog.component';
 import { ToastComponent } from './shared/toast/toast.component';
+import { ThemeDialogComponent } from './theme-dialog/theme-dialog.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +32,7 @@ import { ToastComponent } from './shared/toast/toast.component';
     ChangePasswordDialogComponent,
     ForgotPasswordDialogComponent,
     ToastComponent,
+    ThemeDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -44,10 +42,6 @@ import { ToastComponent } from './shared/toast/toast.component';
     CommonModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatNativeDateModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

@@ -24,4 +24,9 @@ export class AppComponent {
   isLoggedIn(): boolean {
     return !!localStorage.getItem('x-auth-token');
   }
+
+  ngOnInit(): void {
+  const savedTheme = localStorage.getItem('selectedTheme') || 'light-default';
+  document.body.classList.add(savedTheme);
+}
 }
