@@ -1,13 +1,7 @@
-import {
-  Component,
-  Output,
-  EventEmitter,
-  OnInit
-} from '@angular/core';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
 import { ToastService } from 'src/app/shared/toast.service';
+import { AuthService } from 'src/app/services/auth.service'; // ✅ Import service
 
 @Component({
   selector: 'app-forgot-password-dialog',
@@ -20,9 +14,12 @@ export class ForgotPasswordDialogComponent implements OnInit {
   forgotForm!: FormGroup;
   errorMessage = '';
   successMessage = '';
-  readonly BASE_URL = environment.BASE_URL;
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private toast: ToastService) {}
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private toast: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.forgotForm = this.fb.group({
@@ -33,33 +30,22 @@ export class ForgotPasswordDialogComponent implements OnInit {
   onSubmit() {
     if (this.forgotForm.invalid) return;
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
+    this.authService.forgotPassword(this.forgotForm.value.email).subscribe({
+      next: (res: any) => {
+        this.toast.show(res.message || 'Check your email for reset instructions.', 'success');
+        this.errorMessage = '';
+        setTimeout(() => this.closeDialog.emit(), 1500);
+      },
+      error: (err) => {
+        const errorMsg = err?.error?.message || 'Something went wrong.';
+        this.toast.show(errorMsg, 'error');
+        this.successMessage = '';
+        setTimeout(() => this.closeDialog.emit(), 1500);
+      }
     });
-
-    const body = {
-  email: this.forgotForm.value.email,
-  forgot_2fa: false
-};
-
-    this.http.post(`${this.BASE_URL}/user/forgotpassword`, body, { headers })
-      .subscribe({
-        next: (res: any) => {
-          this.toast.show(res.message || 'Check your email for reset instructions.', 'success');
-          this.errorMessage = '';
-          setTimeout(() => this.closeDialog.emit(), 1500);
-        },
-        error: (err) => {
-          const errorMsg = err?.error?.message || 'Something went wrong.';
-          this.toast.show(errorMsg, 'error');
-          this.successMessage = '';
-          setTimeout(() => this.closeDialog.emit(), 1500);
-        }
-      });
   }
 
   close() {
-    console.log("closeeeee")
     this.closeDialog.emit();
   }
 }

@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://dev1api.pronnel.com",
+    "target": "https://api.pronnel.com",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

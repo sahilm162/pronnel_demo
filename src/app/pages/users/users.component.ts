@@ -3,6 +3,7 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { environment } from 'src/environments/environment';
 import { ToastService } from 'src/app/shared/toast.service';
+import { LoggerService } from 'src/app/services/logger.service';
 
 @Component({
   selector: 'app-users',
@@ -35,9 +36,10 @@ export class UsersComponent implements OnInit {
   expandedUser: any = null;
   isMobileView: boolean = false;
   showMobileSearch: boolean = false;
+  filterRoles: string[] = [];
   
 
-  constructor(private userService: UserService, private auth: AuthService, private toast: ToastService) {}
+  constructor(private userService: UserService, private auth: AuthService, private toast: ToastService, private logger: LoggerService) {}
 
   ngOnInit(): void {
     this.checkScreenSize();
@@ -64,7 +66,6 @@ toggleMobileSearch() {
 
   loadUsers(): void {
   const currentUser = this.auth.getUser();
-  const token = localStorage.getItem('x-auth-token') || '';
   const entityId = currentUser?.org_id;
 
   if (!entityId) {
@@ -72,34 +73,29 @@ toggleMobileSearch() {
     return;
   }
 
-  const requestBody: any = {
-    pagination_details: {}
+  const filters: any = {
+    searchText: this.searchText.trim(),
+    roles: this.filterRoles,
+    from: this.startDate ? new Date(this.startDate).getTime() : null,
+    to: this.endDate ? new Date(this.endDate).getTime() : null,
+    sortField: this.sortField,
+    sortOrder: this.sortOrder,
+    pageSize: 20,
+    pageNumber: this.currentPage
   };
 
-  if (this.searchText.trim()) {
-    requestBody.search_params = {
-      search_text: this.searchText.trim(),
-      search_columns: ['name', 'email']
-    };
-  }
+  this.logger.info('Applying filters & sorting to user query', filters);
 
-  fetch(`${this.BASE_URL}/user/query`, {
-    method: 'POST',
-    headers: {
-      accept: 'application/json, text/plain, */*',
-      authorization: token,
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
-  })
-    .then(res => res.json())
-    .then(data => {
+  this.userService.getUsersWithFilters(filters).subscribe({
+    next: (data: any) => {
       this.users = data?.responseData || [];
       this.totalUsers = data?.pagination_details?.total_records || 0;
-    })
-    .catch(err => {
+    },
+    error: (err) => {
       console.error('User Fetch Error:', err);
-    });
+      this.toast.show('Failed to load users', 'error');
+    }
+  });
 }
 
   refreshUserList() {
@@ -115,7 +111,8 @@ toggleMobileSearch() {
   }
 
   applyFilters() {
-    this.closeFilterPanel();
+    this.loadUsers();
+    this.isFilterOpen = false;
   }
 
   onSearch(): void {

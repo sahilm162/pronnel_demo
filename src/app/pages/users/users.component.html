@@ -1,144 +1,145 @@
 <div class="user-page" *ngIf="!isMobileView">
-    <div class="header d-flex justify-content-between align-items-center">
-        <div class="search-container">
-            <div class="search-box" (clickOutside)="onSearch()" (keydown.enter)="onSearch()">
-                <input type="text" class="form-control search-input" placeholder="Search..." [(ngModel)]="searchText"
-                    (blur)="onSearch()" />
-                <i class="bi bi-search search-icon" (click)="onSearch()"></i>
+  <div class="header d-flex justify-content-between align-items-center">
+    <div class="search-container">
+      <div class="search-box" (clickOutside)="onSearch()" (keydown.enter)="onSearch()">
+        <input type="text" class="form-control search-input" placeholder="Search..." [(ngModel)]="searchText"
+          (blur)="onSearch()" />
+        <i class="bi bi-search search-icon" (click)="onSearch()"></i>
+      </div>
+      <div class="accesebility-btn">
+        <button class="filter-btn" (click)="toggleFilterPanel()">
+          <i class="bi bi-sliders2"></i>
+        </button>
+        <div class="dropdown custom-sort-dropdown">
+          <button class="filter-btn" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-sort-down"></i>
+          </button>
+          <div class="dropdown-menu p-2 shadow-sm" aria-labelledby="sortDropdown">
+            <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold"
+              (click)="applySort('name')">
+              Name
+              <span>
+                <i class="bi bi-caret-up-fill d-block lh-1"></i>
+                <i class="bi bi-caret-down-fill d-block lh-1"></i>
+              </span>
             </div>
-            <div class="accesebility-btn">
-                <button class="filter-btn" (click)="toggleFilterPanel()">
-                    <i class="bi bi-sliders2"></i>
-                </button>
-               <div class="dropdown custom-sort-dropdown">
-                 <button class="filter-btn" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                   <i class="bi bi-sort-down"></i>
-                 </button>
-                 <div class="dropdown-menu p-2 shadow-sm" aria-labelledby="sortDropdown">
-                   <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold" (click)="applySort('name')">
-                     Name
-                     <span>
-                       <i class="bi bi-caret-up-fill d-block lh-1"></i>
-                       <i class="bi bi-caret-down-fill d-block lh-1"></i>
-                     </span>
-                   </div>
-                   <hr class="my-1" />
-                   <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold" (click)="applySort('create_date')">
-                     Create Date
-                     <span>
-                       <i class="bi bi-caret-up-fill d-block lh-1"></i>
-                       <i class="bi bi-caret-down-fill d-block lh-1"></i>
-                     </span>
-                   </div>
-                 </div>
-               </div>
+            <hr class="my-1" />
+            <div class="dropdown-item d-flex justify-content-start gap-2 align-items-center text-danger fw-bold"
+              (click)="applySort('create_date')">
+              Create Date
+              <span>
+                <i class="bi bi-caret-up-fill d-block lh-1"></i>
+                <i class="bi bi-caret-down-fill d-block lh-1"></i>
+              </span>
             </div>
+          </div>
         </div>
-        <div class="header-btn">
-            <button class="btn btn-usertab">Org. Roles</button>
-            <button class="btn btn-usertab" (click)="openInviteDialog()">Invite User</button>
-        </div>
+      </div>
     </div>
+    <div class="header-btn">
+      <button class="btn btn-usertab">Org. Roles</button>
+      <button class="btn btn-usertab" (click)="openInviteDialog()">Invite User</button>
+    </div>
+  </div>
 
-        <table class="table table-striped mt-3">
-            <thead class="w-100 table-header">
-                <tr>
-                    <th>
-                        <div class="d-flex align-items-center">
-                            Name
-                            <span class="sort-icons ms-1">
-                                <i class="bi bi-caret-up-fill d-block lh-1"></i>
-                                <i class="bi bi-caret-down-fill d-block lh-1"></i>
-                            </span>
-                        </div>
-                        </th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Mobile</th>
-                        <th>
-                            <div class="d-flex align-items-center">
-                                Create Date
-                                <span class="sort-icons ms-1">
-                                    <i class="bi bi-caret-up-fill d-block lh-1"></i>
-                                    <i class="bi bi-caret-down-fill d-block lh-1"></i>
-                                </span>
-                            </div>
-                    </th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody class="table-body">
-                <tr *ngFor="let user of users">
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.role || 'N/A' }}</td>
-                    <td>{{ user.mobile?.mobile_number || 'N/A' }}</td>
-                    <td>{{ user.create_date | date: 'dd MMM yyyy' }}</td>
-                    <td>{{ user.status }}</td>
-                    <td>
-                        <div class="dropdown action-dropdown">
-                            <button class="btn icon-btn" type="button" data-bs-toggle="dropdown">
-                                ⋮
-                            </button>
-                            <ul class="dropdown-menu custom-dropdown shadow-sm">
-                                <li>
-                                    <a class="dropdown-item delete-action" (click)="confirmDelete(user?._id)">
-                                        <i class="bi bi-trash3-fill me-2"></i> Delete
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item edit-action" (click)="onEdit(user)">
-                                        <i class="bi bi-pencil-square me-2"></i> Edit
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+  <table class="table table-striped mt-3">
+    <thead class="w-100 table-header">
+      <tr>
+        <th>
+          <div class="d-flex align-items-center">
+            Name
+            <span class="sort-icons ms-1">
+              <i class="bi bi-caret-up-fill d-block lh-1"></i>
+              <i class="bi bi-caret-down-fill d-block lh-1"></i>
+            </span>
+          </div>
+        </th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Mobile</th>
+        <th>
+          <div class="d-flex align-items-center">
+            Create Date
+            <span class="sort-icons ms-1">
+              <i class="bi bi-caret-up-fill d-block lh-1"></i>
+              <i class="bi bi-caret-down-fill d-block lh-1"></i>
+            </span>
+          </div>
+        </th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody class="table-body">
+      <tr *ngFor="let user of users">
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role || 'N/A' }}</td>
+        <td>{{ user.mobile?.mobile_number || 'N/A' }}</td>
+        <td>{{ user.create_date | date: 'dd MMM yyyy' }}</td>
+        <td>{{ user.status }}</td>
+        <td>
+          <div class="dropdown action-dropdown">
+            <button class="btn icon-btn" type="button" data-bs-toggle="dropdown">
+              ⋮
+            </button>
+            <ul class="dropdown-menu custom-dropdown shadow-sm">
+              <li>
+                <a class="dropdown-item delete-action" (click)="confirmDelete(user?._id)">
+                  <i class="bi bi-trash3-fill me-2"></i> Delete
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item edit-action" (click)="onEdit(user)">
+                  <i class="bi bi-pencil-square me-2"></i> Edit
+                </a>
+              </li>
+            </ul>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <div class="filter-overlay" *ngIf="isFilterOpen" (click)="closeFilterPanel()"></div>
 
-                <div class="filter-panel" [class.open]="isFilterOpen" (click)="$event.stopPropagation()">
-                    <div class="filter-header">
-                        <h5>Filters</h5>
-                        <button class="close-btn" (click)="closeFilterPanel()">
-                            <i class="bi bi-x"></i>
-                        </button>
-                    </div>
+<div class="filter-panel" [class.open]="isFilterOpen" (click)="$event.stopPropagation()">
+  <div class="filter-header">
+    <h5>Filters</h5>
+    <button class="close-btn" (click)="closeFilterPanel()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
 
-                    <div class="filter-body">
-                        <div class="position-relative mb-3">
-                            <label for="role">Role</label>
-                            <select id="role" class="form-control mb-3" [(ngModel)]="filterRole">
-                                 <option value="">Select Role</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Manager">Manager</option>
-                                <option value="User">User</option>
-                            </select>
-                            <i class="bi bi-caret-down-fill dropdown-arrow"></i>
-                        </div>
+  <div class="filter-body">
+    <div class="position-relative mb-3">
+      <label for="role">Role</label>
+      <select id="role" class="form-control mb-3" [(ngModel)]="filterRole" >
+        <option value="">Select Role</option>
+        <option value="Admin">Admin</option>
+        <option value="Manager">Sales</option>
+      </select>
+      <i class="bi bi-caret-down-fill dropdown-arrow"></i>
+    </div>
 
-                        <label>Created At</label>
-                        <div class="date-range-input">
-                            <i class="bi bi-calendar3 calendar-icon"></i>
-                            <input type="date" [(ngModel)]="startDate" class="date-field" placeholder="Start Date" />
-                            <span class="separator">→</span>
-                            <input type="date" [(ngModel)]="endDate" class="date-field" placeholder="End Date" />
-                        </div>
+    <label>Created At</label>
+    <div class="date-range-input">
+      <i class="bi bi-calendar3 calendar-icon"></i>
+      <input type="date" [(ngModel)]="startDate" class="date-field" placeholder="Start Date" />
+      <span class="separator">→</span>
+      <input type="date" [(ngModel)]="endDate" class="date-field" placeholder="End Date" />
+    </div>
 
-                        <div class="filter-footer">
-                            <button class="btn btn-apply w-40" (click)="applyFilters()">Apply Filters</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="filter-footer">
+      <button class="btn btn-apply w-40" (click)="applyFilters()">Apply Filters</button>
+    </div>
+  </div>
+</div>
 
 <div *ngIf="isMobileView" class="user-list-container">
-    <div class="mobile-user-header d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">User List</h5>
+  <div class="mobile-user-header d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">User List</h5>
     <div class="icon-group d-flex gap-3">
       <i class="bi bi-search icon-btn" (click)="toggleMobileSearch()"></i>
       <i class="bi bi-sliders2 icon-btn" (click)="toggleFilterPanel()"></i>
@@ -146,16 +147,9 @@
     </div>
   </div>
 
-  <!-- Optional: Mobile Search Input -->
   <div *ngIf="showMobileSearch" class="mb-3">
-    <input
-      type="text"
-      class="form-control"
-      placeholder="Search users..."
-      [(ngModel)]="searchText"
-      (keydown.enter)="onSearch()"
-      (blur)="onSearch()"
-    />
+    <input type="text" class="form-control" placeholder="Search users..." [(ngModel)]="searchText"
+      (keydown.enter)="onSearch()" (blur)="onSearch()" />
   </div>
 
   <div *ngFor="let user of users" class="user-card" (click)="toggleExpanded(user)">
@@ -174,7 +168,8 @@
       <p><i class="bi bi-telephone"></i> {{ user.mobile?.mobile_number || 'N/A' }}</p>
       <p><i class="bi bi-envelope"></i> {{ user.email }}</p>
       <p>
-        <i class="bi" [ngClass]="user.status === 'ACTIVE' ? 'bi-circle-fill text-success' : 'bi-circle-fill text-secondary'"></i>
+        <i class="bi"
+          [ngClass]="user.status === 'ACTIVE' ? 'bi-circle-fill text-success' : 'bi-circle-fill text-secondary'"></i>
         {{ user.status }}
       </p>
       <div class="card-actions d-flex justify-content-between">
@@ -189,19 +184,11 @@
   </div>
 </div>
 
-<app-edit-user-dialog
-  *ngIf="showEditDialog"
-  [userData]="selectedUser"
-  [isEdit]="true"
-  (userAdded)="loadUsers()"
-  (close)="closeEditDialog()"
-></app-edit-user-dialog>
+<app-edit-user-dialog *ngIf="showEditDialog" [userData]="selectedUser" [isEdit]="true" (userAdded)="loadUsers()"
+  (close)="closeEditDialog()"></app-edit-user-dialog>
 
-<app-user-dialog
-  *ngIf="showInviteDialog"
-  (close)="closeInviteDialog()"
-  (userAdded)="handleUserAdd($event)"
-></app-user-dialog>
+<app-user-dialog *ngIf="showInviteDialog" (close)="closeInviteDialog()"
+  (userAdded)="handleUserAdd($event)"></app-user-dialog>
 
 <div *ngIf="showDeleteConfirm" class="delete-dialog-overlay" (click)="cancelDelete()">
   <div class="delete-dialog-box" (click)="$event.stopPropagation()">
@@ -209,9 +196,9 @@
       <h3>Confirm Delete</h3>
     </div>
     <p class="delete-dialog-content">Are you sure? <br>
-    This action will permanently delete the user.</p>
+      This action will permanently delete the user.</p>
     <div class="dialog-actions">
-        <button class="btn cancel-light" (click)="cancelDelete()">Cancel</button>
+      <button class="btn cancel-light" (click)="cancelDelete()">Cancel</button>
       <button class="btn delete-btn" (click)="deleteUser()">Delete</button>
     </div>
   </div>
