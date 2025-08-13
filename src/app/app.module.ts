@@ -19,6 +19,9 @@ import { ChangePasswordDialogComponent } from './components/change-password-dial
 import { ForgotPasswordDialogComponent } from './components/forgot-password-dialog/forgot-password-dialog.component';
 import { ToastComponent } from './shared/toast/toast.component';
 import { ThemeDialogComponent } from './theme-dialog/theme-dialog.component';
+import { BoardGridComponent } from './pages/board-grid/board-grid/board-grid.component';
+import { GridComponent } from './components/grid/grid/grid.component';
+import { CellComponent } from './components/cell/cell/cell.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +36,9 @@ import { ThemeDialogComponent } from './theme-dialog/theme-dialog.component';
     ForgotPasswordDialogComponent,
     ToastComponent,
     ThemeDialogComponent,
+    BoardGridComponent,
+    GridComponent,
+    CellComponent,
   ],
   imports: [
     BrowserModule,

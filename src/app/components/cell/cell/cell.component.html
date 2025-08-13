@@ -1,0 +1,51 @@
+<div class="cell" (dblclick)="startEdit()" (click)="isEditable ? startEdit() : null">
+
+    <ng-container *ngIf="!editing; else editTpl">
+        <div #content class="cell-text">
+            <span *ngIf="isEmpty(value)" class="cell-empty">—</span>
+
+            <ng-container *ngIf="!isEmpty(value)">
+                <span *ngIf="type==='text' || type==='number'">{{ value }}</span>
+
+                <a *ngIf="type==='url'" [href]="value" target="_blank" rel="noopener noreferrer" class="cell-link">{{
+                    value }}</a>
+                <a *ngIf="type==='email'" [href]="'mailto:'+value" class="cell-link">{{ value }}</a>
+
+                <span *ngIf="type==='priority'" [class]="badgeClassForPriority(value)">{{ value }}</span>
+            </ng-container>
+        </div>
+
+        <button *ngIf="isOverflow" class="more-btn" type="button" (click)="togglePopover($event)"
+            aria-label="Show full content">…</button>
+
+        <div class="popup" *ngIf="popoverOpen">
+            <div class="popup-arrow"></div>
+            <div class="popup-body">
+                <ng-container [ngSwitch]="type">
+                    <div *ngSwitchCase="'url'"><a [href]="value" target="_blank" rel="noopener noreferrer">{{ value
+                            }}</a></div>
+                    <div *ngSwitchCase="'email'"><a [href]="'mailto:'+value">{{ value }}</a></div>
+                    <div *ngSwitchDefault class="popup-text">{{ value }}</div>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-template #editTpl>
+        <input *ngIf="keyPath==='title' || keyPath==='custom_fields.text_txt'" class="editor editor-input" type="text"
+            [value]="draft" (input)="draft = $any($event.target).value" (keydown)="onKeyDown($event)"
+            (blur)="commit()" />
+
+        <input *ngIf="keyPath==='custom_fields.number_num'" class="editor editor-input" type="text" inputmode="decimal"
+            autocomplete="off" [value]="draft" (input)="draft = $any($event.target).value" (keydown)="onKeyDown($event)"
+            (blur)="commit()" />
+
+        <select *ngIf="keyPath==='priority' || keyPath==='priority_label'" class="editor editor-select" [value]="draft"
+            (change)="draft = $any($event.target).value; commit()" (keydown)="onKeyDown($event)" (blur)="commit()">
+            <option value="H">H</option>
+            <option value="U">U</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+        </select>
+    </ng-template>
+</div>

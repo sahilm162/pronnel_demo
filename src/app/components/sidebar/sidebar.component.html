@@ -70,6 +70,10 @@
             <i class="bi bi-table"></i>
             <span *ngIf="!isCollapsed">User List</span>
         </a>
+        <a routerLink="/board" routerLinkActive="active">
+            <i class="bi bi-grid"></i>
+            <span *ngIf="!isCollapsed">Board</span>
+        </a>
         <a class="mobile-link" (click)="onChangePassword()" *ngIf="isMobile">
             <i class="bi bi-shield-lock"></i> Change Password
         </a>

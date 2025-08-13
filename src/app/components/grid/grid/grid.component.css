@@ -1,0 +1,63 @@
+.grid-col {
+  width: calc(100% / var(--col-count, 1));
+}
+
+.grid-wrapper {
+    width: 100%;
+    overflow: auto;
+}
+
+.grid-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    color: #111827;
+}
+
+.grid-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--head-bg);
+    text-align: left;
+    padding: var(--pad-y) var(--pad-x);
+    height: var(--row-h);
+    border-bottom: 1px solid var(--bcol);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.grid-table tbody tr:hover td {
+    background: var(--hover-bg);
+}
+
+.grid-table tbody td {
+    position: relative;
+    height: var(--row-h);
+    padding: var(--pad-y) var(--pad-x);
+    border-bottom: 1px solid var(--bcol);
+    border-right: 1px solid #f4f6fb;
+    vertical-align: middle;
+    overflow: visible;
+}
+
+.grid-table tbody td:first-child {
+    border-left: 1px solid var(--bcol);
+}
+
+.grid-table tbody td:last-child {
+    border-right: 1px solid var(--bcol);
+}
+
+.empty-state {
+    padding: 12px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.grid-table tbody td:has(.cell.is-focused) {
+    box-shadow: inset 0 0 0 1px var(--focus-ring);
+    background: #fff;
+}

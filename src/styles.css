@@ -8,6 +8,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --primary-color: #2E4765;
   --accent-color: #FF544C;
   --card-color: #f5f5f5;
+
+   --row-h: 40px;
+    --pad-x: 10px;
+    --pad-y: 6px;
+    --bcol: #e6e9ef;
+    --head-bg: #b6caf2;
+    --hover-bg: #f9fbff;
+    --focus-ring: #3b82f6;
 }
 
 body.light-default {

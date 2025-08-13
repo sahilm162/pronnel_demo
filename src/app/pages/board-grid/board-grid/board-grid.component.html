@@ -1,0 +1,10 @@
+<div class="page">
+    <h2 class="page-title">Board Grid</h2>
+
+    <div *ngIf="loading" class="loading">Loading board…</div>
+
+    <div *ngIf="!loading && errorMsg" class="error">{{ errorMsg }}</div>
+
+    <app-grid *ngIf="!loading && !errorMsg" [columns]="board.columns" [items]="board.items" [boardId]="board_id">
+    </app-grid>
+</div>

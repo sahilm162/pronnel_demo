@@ -1,0 +1,24 @@
+.page {
+    padding: 16px;
+}
+
+.page-title {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.loading {
+    padding: 12px;
+    color: #374151;
+    text-align: center;
+}
+
+.error {
+    padding: 12px;
+    color: #b91c1c;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+}
