@@ -1,0 +1,17 @@
+<div class="pop">
+  <div class="search">
+    <span class="icon">🔎</span>
+    <input type="text" placeholder="Bucket" [(ngModel)]="query" />
+  </div>
+
+  <ul class="list" role="listbox" aria-label="Bucket">
+    <li *ngFor="let b of filtered"
+        (click)="choose(b)"
+        class="row"
+        [class.active]="b===value"
+        tabindex="0">
+      <span class="name">{{ b }}</span>
+      <span *ngIf="b===finalOption" class="chip">✔ {{ finalBucket }}</span>
+    </li>
+  </ul>
+</div>

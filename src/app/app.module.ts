@@ -22,6 +22,8 @@ import { ThemeDialogComponent } from './theme-dialog/theme-dialog.component';
 import { BoardGridComponent } from './pages/board-grid/board-grid/board-grid.component';
 import { GridComponent } from './components/grid/grid/grid.component';
 import { CellComponent } from './components/cell/cell/cell.component';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -48,6 +50,8 @@ import { CellComponent } from './components/cell/cell/cell.component';
     CommonModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    OverlayModule,
+    ScrollingModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

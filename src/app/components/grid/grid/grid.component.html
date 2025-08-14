@@ -1,29 +1,28 @@
 <div class="grid-frame">
-    <div class="grid-wrapper">
-        <table class="grid-table">
-            <colgroup>
-                <col *ngFor="let _ of columns; trackBy: trackCol" class="grid-col" />
-            </colgroup>
-
-            <thead>
-                <tr>
-                    <th *ngFor="let col of columns; trackBy: trackCol">
-                        {{ col.header }}
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr *ngFor="let row of items; trackBy: trackRow">
-                    <td *ngFor="let col of columns; trackBy: trackCol">
-                        <app-cell [type]="col.type" [value]="pathGet(row, col.key)" [row]="row" [keyPath]="col.key"
-                            [boardId]="boardId">
-                        </app-cell>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div *ngIf="!items?.length" class="empty-state">No rows</div>
-    </div>
+  <div class="grid-wrapper" cdkScrollable>
+    <table class="grid-table">
+      <colgroup>
+        <col *ngFor="let _ of columns; trackBy: trackCol" class="grid-col" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th *ngFor="let col of columns; trackBy: trackCol">{{ col.header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of items; trackBy: trackRow">
+          <td *ngFor="let col of columns; trackBy: trackCol">
+            <app-cell
+              [type]="col.type"
+              [value]="pathGet(row, col.key)"
+              [row]="row"
+              [keyPath]="col.key"
+              [boardId]="boardId">
+            </app-cell>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!items?.length" class="empty-state">No rows</div>
+  </div>
 </div>

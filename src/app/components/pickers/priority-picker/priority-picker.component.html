@@ -1,0 +1,12 @@
+<div class="pop">
+  <ul class="list" role="listbox" aria-label="Priority">
+    <li *ngFor="let it of items"
+        (click)="choose(it.code)"
+        class="row"
+        [class.active]="it.code===value"
+        tabindex="0">
+      <span [class]="it.cls">{{ it.code }}</span>
+      <span class="label">{{ it.label }}</span>
+    </li>
+  </ul>
+</div>
