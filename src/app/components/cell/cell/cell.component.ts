@@ -65,28 +65,49 @@ export class CellComponent implements AfterViewInit {
     }
   }
 
+  @HostListener('click', ['$event'])
+  onCellClick(ev: MouseEvent) {
+    if (!this.isEditable || this.saving || this.editing) return;
+
+    const target = ev.target as HTMLElement;
+    if (target.closest('a,button,[role="button"],.picker-panel,.editor')) return;
+
+    if (this.keyPath === 'priority' || this.keyPath === 'priority_label') {
+      this.openPriorityPicker();
+      return;
+    }
+    if (this.keyPath === 'bucket_id') {
+      this.openBucketPicker();
+      return;
+    }
+
+    this.editing = true;
+    this.popoverOpen = false;
+    this.draft = this.value ?? '';
+    this.cdr.markForCheck();
+    setTimeout(() => this.focusEditor(true));
+  }
+
+  @HostListener('keydown', ['$event'])
   handleCellKeydown(ev: KeyboardEvent) {
     if (this.editing || !this.isEditable) return;
-
     if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
 
-    const key = ev.key;
-    if (key.length === 1) {
+    const nonChar = ['Enter','Escape','Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown'];
+    if (nonChar.includes(ev.key)) return;
+
+    if (ev.key.length === 1) {
       ev.preventDefault();
       this.editing = true;
       this.popoverOpen = false;
-
-      if (this.keyPath === 'custom_fields.number_num') {
-        this.draft = key;
-      } else {
-        this.draft = key;
-      }
+      this.draft = ev.key;
       this.cdr.markForCheck();
-      setTimeout(() => this.focusEditor(true));
+      setTimeout(() => this.focusEditor(false));
     }
   }
 
   isEmpty(v:any){ return v===null || v===undefined || v===''; }
+
   badgeClassForPriority(val: string): string {
     const v=(val||'').toString().toUpperCase();
     switch (v){

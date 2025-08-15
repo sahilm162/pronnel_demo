@@ -11,6 +11,8 @@ import { Board } from 'src/app/models/board.models';
 import { BoardService } from 'src/app/services/board.service';
 import { LiveUpdatesService, BoardPatch } from 'src/app/services/live-updates.service';
 import { environment } from 'src/environments/environment';
+import { auditTime } from 'rxjs/operators';
+import { animationFrameScheduler } from 'rxjs';
 
 @Component({
   selector: 'app-board-grid',
@@ -36,30 +38,34 @@ export class BoardGridComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loading = true;
-    this.boardService.getBoard(this.boardId)
-      .pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
-      .subscribe({
-        next: (b) => { this.board = b; this.cdr.markForCheck(); },
-        error: (err) => {
-          console.error('API error:', err);
-          this.errorMsg = 'Failed to load board data';
-          this.board = { columns: [], items: [] };
-          this.cdr.markForCheck();
-        }
-      });
+  this.loading = true;
 
-    this.live.connect(this.boardId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({ error: (e) => console.error('[Realtime] connect error', e) });
+  this.boardService.getBoard(this.boardId)
+    .pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
+    .subscribe({
+      next: (b) => { this.board = b; this.cdr.markForCheck(); },
+      error: (err) => {
+        console.error('API error:', err);
+        this.errorMsg = 'Failed to load board data';
+        this.board = { columns: [], items: [] };
+        this.cdr.markForCheck();
+      }
+    });
 
-    this.live.patches$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((p) => {
-        this.applyPatch(p);
-        this.cdr.markForCheck(); 
-      });
-  }
+  // connect WS/MQTT
+  this.live.connect(this.boardId)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({ error: (e) => console.error('[Realtime] connect error', e) });
+
+  // ✅ batch patches to one CD tick per frame
+  this.live.patches$
+    .pipe(auditTime(0, animationFrameScheduler), takeUntil(this.destroy$))
+    .subscribe((patchOrArray) => {
+      const list = Array.isArray(patchOrArray) ? patchOrArray : [patchOrArray];
+      for (const p of list) this.applyPatch(p);
+      this.cdr.markForCheck(); // OnPush refresh
+    });
+}
 
   ngOnDestroy(): void {
     this.destroy$.next();
