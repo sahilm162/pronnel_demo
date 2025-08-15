@@ -1,4 +1,9 @@
-<div class="cell" (dblclick)="startEdit()" (click)="isEditable ? startEdit() : null">
+<div class="cell"
+     tabindex="0"
+     (dblclick)="!editing && startEdit()"
+     (click)="!editing && isEditable && startEdit()"
+     (keydown)="handleCellKeydown($event)">
+
   <span cdkOverlayOrigin #origin="cdkOverlayOrigin" class="anchor-box"></span>
 
   <ng-container *ngIf="!editing; else editTpl">
@@ -13,7 +18,11 @@
       </ng-container>
     </div>
 
-    <button *ngIf="isOverflow" class="more-btn" type="button" (click)="togglePopover($event)" aria-label="Show full content">…</button>
+    <button *ngIf="isOverflow"
+            class="more-btn"
+            type="button"
+            (click)="togglePopover($event)"
+            aria-label="Show full content">…</button>
 
     <div class="popup" *ngIf="popoverOpen">
       <div class="popup-arrow"></div>
@@ -28,40 +37,45 @@
   </ng-container>
 
   <ng-template #editTpl>
-    <input
-      *ngIf="keyPath==='title' || keyPath==='custom_fields.text_txt'"
-      class="editor editor-input"
-      type="text"
-      [value]="draft"
-      (input)="draft = $any($event.target).value"
-      (keydown)="onKeyDown($event)"
-      (blur)="commit()"
-    />
+    <div #content class="cell-edit">
+      <input
+        *ngIf="keyPath==='title' || keyPath==='custom_fields.text_txt'"
+        class="editor editor-input"
+        type="text"
+        [value]="draft"
+        (click)="$event.stopPropagation()"
+        (input)="draft = $any($event.target).value"
+        (keydown)="onKeyDown($event)"
+        (blur)="commit()"
+      />
 
-    <input
-      *ngIf="keyPath==='custom_fields.number_num'"
-      class="editor editor-input"
-      type="text"
-      inputmode="decimal"
-      autocomplete="off"
-      [value]="draft"
-      (input)="draft = $any($event.target).value"
-      (keydown)="onKeyDown($event)"
-      (blur)="commit()"
-    />
+      <input
+        *ngIf="keyPath==='custom_fields.number_num'"
+        class="editor editor-input"
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        [value]="draft"
+        (click)="$event.stopPropagation()"
+        (input)="draft = $any($event.target).value"
+        (keydown)="onKeyDown($event)"
+        (blur)="commit()"
+      />
 
-    <select
-      *ngIf="keyPath==='priority' || keyPath==='priority_label'"
-      class="editor editor-select"
-      [value]="draft"
-      (change)="draft = $any($event.target).value; commit()"
-      (keydown)="onKeyDown($event)"
-      (blur)="commit()"
-    >
-      <option value="H">H</option>
-      <option value="U">U</option>
-      <option value="M">M</option>
-      <option value="L">L</option>
-    </select>
+      <select
+        *ngIf="keyPath==='priority' || keyPath==='priority_label'"
+        class="editor editor-select"
+        [value]="draft"
+        (click)="$event.stopPropagation()"
+        (change)="draft = $any($event.target).value; commit()"
+        (keydown)="onKeyDown($event)"
+        (blur)="commit()"
+      >
+        <option value="H">H</option>
+        <option value="U">U</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+      </select>
+    </div>
   </ng-template>
 </div>
