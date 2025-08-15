@@ -106,27 +106,49 @@ export class LiveUpdatesService {
     this.topicPrefix = null;
   }
 
-  private handleMessage(msg: IMqttMessage) {
-    this.zone.run(() => {
-      let data: any;
-      try { data = JSON.parse(msg.payload.toString()); } catch { return; }
+private handleMessage(msg: IMqttMessage) {
+  this.zone.run(() => {
+    let data: any;
+    try { data = JSON.parse(msg.payload.toString()); } catch { return; }
+    if (!data) return;
 
-      switch (data?.type) {
-        case 'lead_updated':
-          if (data.leadId) this.patchesSubj.next({ op: 'update', id: data.leadId, changes: data.changes ?? {} });
-          break;
-        case 'lead_created':
-          if (data.item) this.patchesSubj.next({ op: 'insert', item: data.item });
-          break;
-        case 'lead_deleted':
-          if (data.leadId) this.patchesSubj.next({ op: 'remove', id: data.leadId });
-          break;
-        default:
-          if (data?._id) this.patchesSubj.next({ op: 'update', id: data._id, changes: data });
-          break;
+    switch (data.type) {
+      case 'lead_updated': {
+        const id = data.leadId ?? data.id ?? data._id;
+        if (!id) return;
+
+        if (data.changes && typeof data.changes === 'object') {
+          this.patchesSubj.next({ op: 'update', id, changes: data.changes });
+          return;
+        }
+
+        if (data.path && 'value' in data) {
+          this.patchesSubj.next({ op: 'update', id, changes: { [data.path]: data.value } });
+          return;
+        }
+
+        if (data.item && data.item._id) {
+          this.patchesSubj.next({ op: 'update', id: data.item._id, changes: data.item });
+        }
+        break;
       }
-    });
-  }
+
+      case 'lead_created':
+        if (data.item) this.patchesSubj.next({ op: 'insert', item: data.item });
+        break;
+
+      case 'lead_deleted':
+        if (data.leadId) this.patchesSubj.next({ op: 'remove', id: data.leadId });
+        break;
+
+      default:
+        if (data.id && data.path && 'value' in data) {
+          this.patchesSubj.next({ op: 'update', id: data.id, changes: { [data.path]: data.value } });
+        }
+        break;
+    }
+  });
+}
 
   testPublish(payload: any) {
     if (!this.topicPrefix) return;

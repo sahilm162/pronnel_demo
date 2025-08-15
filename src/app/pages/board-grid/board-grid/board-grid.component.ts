@@ -19,11 +19,13 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BoardGridComponent implements OnInit, OnDestroy {
-  readonly board_id = environment.BOARD_ID;
+  readonly boardId = environment.BOARD_ID;
 
   board: Board = { columns: [], items: [] };
   loading = true;
   errorMsg = '';
+
+  private editingMap = new Set<string>();
 
   private destroy$ = new Subject<void>();
 
@@ -34,15 +36,11 @@ export class BoardGridComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // 1) Initial fetch
     this.loading = true;
-    this.boardService.getBoard(this.board_id)
+    this.boardService.getBoard(this.boardId)
       .pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
       .subscribe({
-        next: (b) => {
-          this.board = b;
-          this.cdr.markForCheck();
-        },
+        next: (b) => { this.board = b; this.cdr.markForCheck(); },
         error: (err) => {
           console.error('API error:', err);
           this.errorMsg = 'Failed to load board data';
@@ -51,8 +49,7 @@ export class BoardGridComponent implements OnInit, OnDestroy {
         }
       });
 
-    // 2) Live updates (WebSocket/MQTT)
-    this.live.connect(this.board_id)
+    this.live.connect(this.boardId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({ error: (e) => console.error('[Realtime] connect error', e) });
 
@@ -60,7 +57,7 @@ export class BoardGridComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((p) => {
         this.applyPatch(p);
-        this.cdr.markForCheck(); // OnPush refresh
+        this.cdr.markForCheck(); 
       });
   }
 
@@ -70,30 +67,39 @@ export class BoardGridComponent implements OnInit, OnDestroy {
     this.live.disconnect();
   }
 
+  private applyDotChanges<T extends object>(row: T, changes: Record<string, any>): T {
+    let next: any = { ...row };
+    for (const path of Object.keys(changes)) {
+      const value = changes[path];
+      next = this.pathSet(next, path, value);
+    }
+    return next;
+  }
+
+  private pathSet<T extends object>(obj: T, dotPath: string, value: any): T {
+    if (!dotPath || dotPath === '.') return value as T;
+
+    const parts = dotPath.split('.');
+    const cloneDeep = (cur: any, idx: number): any => {
+      if (idx === parts.length) return value;
+
+      const key = parts[idx]!;
+      const curVal = cur?.[key];
+      const base = Array.isArray(cur) ? cur.slice() : { ...(cur ?? {}) };
+
+      base[key] = cloneDeep(curVal, idx + 1);
+      return base;
+    };
+
+    return cloneDeep(obj, 0);
+  }
+
 
   private applyPatch(p: BoardPatch) {
-    if (!this.board?.items) return;
-
-    if (p.op === 'update') {
-      const idx = this.board.items.findIndex(r => (r as any)._id === p.id || (r as any).id === p.id);
-      if (idx === -1) return;
-
-      const merged = this.deepMerge(this.board.items[idx], p.changes);
-      this.board = {
-        ...this.board,
-        items: [
-          ...this.board.items.slice(0, idx),
-          merged,
-          ...this.board.items.slice(idx + 1)
-        ]
-      };
-      return;
-    }
-
     if (p.op === 'insert') {
       this.board = {
         ...this.board,
-        items: [p.item, ...this.board.items]
+        items: [p.item, ...(this.board.items ?? [])]
       };
       return;
     }
@@ -101,23 +107,53 @@ export class BoardGridComponent implements OnInit, OnDestroy {
     if (p.op === 'remove') {
       this.board = {
         ...this.board,
-        items: this.board.items.filter(r => (r as any)._id !== p.id && (r as any).id !== p.id)
+        items: (this.board.items ?? []).filter(
+          r => (r as any)._id !== p.id && (r as any).id !== p.id
+        )
+      };
+      return;
+    }
+
+    if (p.op === 'update') {
+      const items = this.board.items ?? [];
+      const idx = items.findIndex(r => (r as any)._id === p.id || (r as any).id === p.id);
+      if (idx === -1) return;
+
+      const safeChanges: Record<string, any> = {};
+      for (const [k, v] of Object.entries(p.changes ?? {})) {
+        const guardKey = `${p.id}::${k}`;
+        if (!this.editingMap.has(guardKey)) safeChanges[k] = v;
+      }
+      if (!Object.keys(safeChanges).length) return;
+
+      const merged = this.applyDotChanges(items[idx] as any, safeChanges);
+
+      this.board = {
+        ...this.board,
+        items: [
+          ...items.slice(0, idx),
+          merged,
+          ...items.slice(idx + 1)
+        ]
       };
       return;
     }
   }
 
-  private deepMerge(a: any, b: any) {
-    if (!b || a === b) return a;
-    const out: any = Array.isArray(a) ? [...a] : { ...a };
-    for (const k of Object.keys(b)) {
-      const bv = b[k];
-      const av = a?.[k];
-      out[k] =
-        bv && typeof bv === 'object' && !Array.isArray(bv)
-          ? this.deepMerge(av ?? {}, bv)
-          : bv;
-    }
-    return out;
+  public beginEdit(rowId: string, dotPath: string) {
+    this.editingMap.add(`${rowId}::${dotPath}`);
+  }
+
+  public endEdit(rowId: string, dotPath: string) {
+    this.editingMap.delete(`${rowId}::${dotPath}`);
+  }
+
+
+  trackRow = (_: number, row: any) => row?._id ?? row?.id ?? _;
+  trackCol = (_: number, col: any) => col?.key ?? _;
+
+  pathGet(row: any, dotPath: string): any {
+    if (!row || !dotPath) return undefined;
+    return dotPath.split('.').reduce((acc, k) => (acc == null ? acc : acc[k]), row);
   }
 }

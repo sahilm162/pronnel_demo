@@ -5,6 +5,6 @@
 
     <div *ngIf="!loading && errorMsg" class="error">{{ errorMsg }}</div>
 
-    <app-grid *ngIf="!loading && !errorMsg" [columns]="board.columns" [items]="board.items" [boardId]="board_id">
+    <app-grid *ngIf="!loading && !errorMsg" [columns]="board.columns" [items]="board.items" [boardId]="boardId">
     </app-grid>
 </div>
