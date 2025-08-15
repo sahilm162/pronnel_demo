@@ -24,6 +24,17 @@ import { GridComponent } from './components/grid/grid/grid.component';
 import { CellComponent } from './components/cell/cell/cell.component';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { environment } from 'src/environments/environment';
+import { MqttModule, IMqttServiceOptions } from 'ngx-mqtt';
+
+export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {
+hostname: environment.hostName,
+port: 443,
+path: environment.path,
+protocol: 'wss',
+keepalive:30,
+};
+
 
 @NgModule({
   declarations: [
@@ -52,6 +63,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     BrowserAnimationsModule,
     OverlayModule,
     ScrollingModule,
+    MqttModule.forRoot(MQTT_SERVICE_OPTIONS),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
