@@ -3,22 +3,22 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   OnInit,
-  OnDestroy
+  OnDestroy,
 } from '@angular/core';
 import { finalize, Subject, takeUntil } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
+import { animationFrameScheduler } from 'rxjs';
 
 import { Board } from 'src/app/models/board.models';
 import { BoardService } from 'src/app/services/board.service';
 import { LiveUpdatesService, BoardPatch } from 'src/app/services/live-updates.service';
 import { environment } from 'src/environments/environment';
-import { auditTime } from 'rxjs/operators';
-import { animationFrameScheduler } from 'rxjs';
 
 @Component({
   selector: 'app-board-grid',
   templateUrl: './board-grid.component.html',
   styleUrls: ['./board-grid.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardGridComponent implements OnInit, OnDestroy {
   readonly boardId = environment.BOARD_ID;
@@ -26,6 +26,11 @@ export class BoardGridComponent implements OnInit, OnDestroy {
   board: Board = { columns: [], items: [] };
   loading = true;
   errorMsg = '';
+
+  private pageSize = 100;
+  private nextStart = 0;
+  private loadingPage = false;
+  allLoaded = false;
 
   private editingMap = new Set<string>();
 
@@ -38,39 +43,130 @@ export class BoardGridComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-  this.loading = true;
+    this.loadFirstPage();
 
-  this.boardService.getBoard(this.boardId)
-    .pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
-    .subscribe({
-      next: (b) => { this.board = b; this.cdr.markForCheck(); },
-      error: (err) => {
-        console.error('API error:', err);
-        this.errorMsg = 'Failed to load board data';
-        this.board = { columns: [], items: [] };
+    this.live.connect(this.boardId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({ error: (e) => console.error('[Realtime] connect error', e) });
+
+    this.live.patches$
+      .pipe(auditTime(0, animationFrameScheduler), takeUntil(this.destroy$))
+      .subscribe((patchOrArray) => {
+        const list = Array.isArray(patchOrArray) ? patchOrArray : [patchOrArray];
+        for (const p of list) this.applyPatch(p);
         this.cdr.markForCheck();
-      }
-    });
-
-  // connect WS/MQTT
-  this.live.connect(this.boardId)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({ error: (e) => console.error('[Realtime] connect error', e) });
-
-  // ✅ batch patches to one CD tick per frame
-  this.live.patches$
-    .pipe(auditTime(0, animationFrameScheduler), takeUntil(this.destroy$))
-    .subscribe((patchOrArray) => {
-      const list = Array.isArray(patchOrArray) ? patchOrArray : [patchOrArray];
-      for (const p of list) this.applyPatch(p);
-      this.cdr.markForCheck(); // OnPush refresh
-    });
-}
+      });
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.live.disconnect();
+  }
+
+  private loadFirstPage(): void {
+    this.loading = true;
+
+    this.boardService
+      .getBoardFirstPage(this.boardId, this.pageSize)
+      .pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (b) => {
+          this.board = {
+            columns: b.columns ?? [],
+            items: b.items ?? [],
+          };
+
+          const received = this.board.items.length;
+          this.nextStart = received;
+          this.allLoaded = received < this.pageSize; 
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          console.error('API error:', err);
+          this.errorMsg = 'Failed to load board data';
+          this.board = { columns: [], items: [] };
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  onGridLoadMore(): void {
+    if (this.loadingPage || this.allLoaded) return;
+    this.loadNextPage();
+  }
+
+  private loadNextPage(): void {
+    this.loadingPage = true;
+
+    this.boardService
+      .getBoardPage(this.boardId, this.nextStart, this.pageSize)
+      .pipe(finalize(() => {
+        this.loadingPage = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (rows) => {
+          const existing = this.board.items ?? [];
+          const seen = new Set(existing.map(r => (r as any)._id ?? (r as any).id));
+          const fresh = (rows ?? []).filter(r => !seen.has((r as any)._id ?? (r as any).id));
+
+          if (!fresh.length) {
+            this.allLoaded = true;
+            return;
+          }
+
+          this.board = { ...this.board, items: existing.concat(fresh) };
+
+          this.nextStart += fresh.length;
+          if (fresh.length < this.pageSize) this.allLoaded = true;
+
+          this.cdr.markForCheck();
+        },
+        error: (err) => console.error('getBoardPage failed', err),
+      });
+  }
+
+
+  private applyPatch(p: BoardPatch) {
+    if (!this.board?.items) return;
+
+    if (p.op === 'insert') {
+      this.board = { ...this.board, items: [p.item, ...this.board.items] };
+      return;
+    }
+
+    if (p.op === 'remove') {
+      this.board = {
+        ...this.board,
+        items: this.board.items.filter(
+          r => (r as any)._id !== p.id && (r as any).id !== p.id
+        ),
+      };
+      return;
+    }
+
+    if (p.op === 'update') {
+      const items = this.board.items;
+      const idx = items.findIndex(r => (r as any)._id === p.id || (r as any).id === p.id);
+      if (idx === -1) return; 
+
+      const safeChanges: Record<string, any> = {};
+      for (const [k, v] of Object.entries(p.changes ?? {})) {
+        const guardKey = `${p.id}::${k}`;
+        if (!this.editingMap.has(guardKey)) safeChanges[k] = v;
+      }
+      if (!Object.keys(safeChanges).length) return;
+
+      const merged = this.applyDotChanges(items[idx] as any, safeChanges);
+      this.board = {
+        ...this.board,
+        items: [...items.slice(0, idx), merged, ...items.slice(idx + 1)],
+      };
+    }
   }
 
   private applyDotChanges<T extends object>(row: T, changes: Record<string, any>): T {
@@ -84,76 +180,24 @@ export class BoardGridComponent implements OnInit, OnDestroy {
 
   private pathSet<T extends object>(obj: T, dotPath: string, value: any): T {
     if (!dotPath || dotPath === '.') return value as T;
-
     const parts = dotPath.split('.');
     const cloneDeep = (cur: any, idx: number): any => {
       if (idx === parts.length) return value;
-
       const key = parts[idx]!;
       const curVal = cur?.[key];
       const base = Array.isArray(cur) ? cur.slice() : { ...(cur ?? {}) };
-
       base[key] = cloneDeep(curVal, idx + 1);
       return base;
     };
-
     return cloneDeep(obj, 0);
-  }
-
-
-  private applyPatch(p: BoardPatch) {
-    if (p.op === 'insert') {
-      this.board = {
-        ...this.board,
-        items: [p.item, ...(this.board.items ?? [])]
-      };
-      return;
-    }
-
-    if (p.op === 'remove') {
-      this.board = {
-        ...this.board,
-        items: (this.board.items ?? []).filter(
-          r => (r as any)._id !== p.id && (r as any).id !== p.id
-        )
-      };
-      return;
-    }
-
-    if (p.op === 'update') {
-      const items = this.board.items ?? [];
-      const idx = items.findIndex(r => (r as any)._id === p.id || (r as any).id === p.id);
-      if (idx === -1) return;
-
-      const safeChanges: Record<string, any> = {};
-      for (const [k, v] of Object.entries(p.changes ?? {})) {
-        const guardKey = `${p.id}::${k}`;
-        if (!this.editingMap.has(guardKey)) safeChanges[k] = v;
-      }
-      if (!Object.keys(safeChanges).length) return;
-
-      const merged = this.applyDotChanges(items[idx] as any, safeChanges);
-
-      this.board = {
-        ...this.board,
-        items: [
-          ...items.slice(0, idx),
-          merged,
-          ...items.slice(idx + 1)
-        ]
-      };
-      return;
-    }
   }
 
   public beginEdit(rowId: string, dotPath: string) {
     this.editingMap.add(`${rowId}::${dotPath}`);
   }
-
   public endEdit(rowId: string, dotPath: string) {
     this.editingMap.delete(`${rowId}::${dotPath}`);
   }
-
 
   trackRow = (_: number, row: any) => row?._id ?? row?.id ?? _;
   trackCol = (_: number, col: any) => col?.key ?? _;

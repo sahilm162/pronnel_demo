@@ -53,15 +53,15 @@ export class UserService {
     }
   };
 
-  if (filters.searchText) {
+  if (filters.searchText?.trim()) {
     requestBody.search_params = {
       search_text: filters.searchText.trim(),
       search_columns: ['name', 'email']
     };
   }
 
-  if (filters.roles && filters.roles.length) {
-    requestBody.filter_roles = filters.roles;
+  if (filters.roles && filters.roles.trim()) {
+    requestBody.role = [filters.roles];
   }
 
   if (filters.from) requestBody.created_from = filters.from;
@@ -90,7 +90,10 @@ export class UserService {
       search_params: {
         search_text: email,
         search_columns: ['email']
-      }
+      },
+      role: [
+    "string"
+  ],
     };
 
     return this.http.post('/user/query', requestBody);
@@ -127,5 +130,10 @@ export class UserService {
   inviteUser(orgId: string, userData: any): Observable<any> {
     this.logger.info('Inviting new user', { orgId, userData });
     return this.http.post(`/organisation/${orgId}/user`, userData);
+  }
+
+  deleteUser(userId: string): Observable<any> {
+    this.logger.info('Deleting user', { userId });
+    return this.http.delete(`/user/${userId}`);
   }
 }

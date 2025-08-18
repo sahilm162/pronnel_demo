@@ -8,10 +8,10 @@
     <li *ngFor="let b of filtered"
         (click)="choose(b)"
         class="row"
-        [class.active]="b===value"
+        [class.active]="b.id===value"
         tabindex="0">
-      <span class="name">{{ b }}</span>
-      <span *ngIf="b===finalOption" class="chip">✔ {{ finalBucket }}</span>
+      <span class="name">{{ b.name }}</span>
+      <span *ngIf="b.name===finalOptionName" class="chip">✔ {{ finalBucket }}</span>
     </li>
   </ul>
 </div>

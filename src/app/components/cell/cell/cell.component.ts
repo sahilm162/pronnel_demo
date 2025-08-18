@@ -22,13 +22,12 @@ import { ComponentPortal } from '@angular/cdk/portal';
 })
 export class CellComponent implements AfterViewInit {
   @Input() type: CellType = 'text';
-  @Input() value: any;
-
+  @Input() value: any;    
   @Input() row: any;
   @Input() keyPath = '';
   @Input() boardId = '';
 
-  @Input() bucketOptions: string[] | null = null;
+  @Input() bucketOptions: Array<{id:string;name:string}> | null = null;
 
   @ViewChild('origin', { read: CdkOverlayOrigin, static: false }) origin?: CdkOverlayOrigin;
   @ViewChild('content', { static: false }) contentRef?: ElementRef<HTMLElement>;
@@ -68,7 +67,6 @@ export class CellComponent implements AfterViewInit {
   @HostListener('click', ['$event'])
   onCellClick(ev: MouseEvent) {
     if (!this.isEditable || this.saving || this.editing) return;
-
     const target = ev.target as HTMLElement;
     if (target.closest('a,button,[role="button"],.picker-panel,.editor')) return;
 
@@ -76,7 +74,7 @@ export class CellComponent implements AfterViewInit {
       this.openPriorityPicker();
       return;
     }
-    if (this.keyPath === 'bucket_id') {
+    if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') {
       this.openBucketPicker();
       return;
     }
@@ -141,10 +139,17 @@ export class CellComponent implements AfterViewInit {
       if (!this.createOverlay(anchor)) return;
       const portal = new ComponentPortal(BucketPickerComponent);
       const ref = this.overlayRef!.attach(portal);
-      ref.instance.value = (this.value || '').toString();
-      if (this.bucketOptions?.length) ref.instance.buckets = this.bucketOptions.slice();
-      ref.instance.picked.subscribe((val: string) => {
-        this.saveField('bucket_id', val);
+
+      const currentId = (this.row?.bucket_id || '').toString();
+      ref.instance.value = currentId;
+
+      this.boardSvc.getBucketsForBoard(this.boardId).subscribe({
+        next: (opts) => { ref.instance.buckets = opts; this.cdr.markForCheck(); },
+        error: (e) => console.error('Failed to load bucket options', e),
+      });
+
+      ref.instance.picked.subscribe((bucketId: string) => {
+        this.saveField('bucket_id', bucketId);
         this.destroyOverlay();
       });
     } catch (e) { console.error('Bucket picker load failed', e); }
@@ -207,7 +212,7 @@ export class CellComponent implements AfterViewInit {
 
   get isEditable(): boolean {
     if (this.keyPath === 'priority' || this.keyPath === 'priority_label') return true;
-    if (this.keyPath === 'bucket_id') return true;
+    if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') return true;
     if (this.keyPath === 'title') return true;
     if (this.keyPath === 'custom_fields.text_txt') return true;
     if (this.keyPath === 'custom_fields.number_num') return true;
@@ -218,7 +223,7 @@ export class CellComponent implements AfterViewInit {
     if (!this.isEditable || this.saving || this.editing) return;
 
     if (this.keyPath === 'priority' || this.keyPath === 'priority_label') { this.openPriorityPicker(); return; }
-    if (this.keyPath === 'bucket_id') { this.openBucketPicker(); return; }
+    if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') { this.openBucketPicker(); return; }
 
     this.editing = true;
     this.popoverOpen = false;
@@ -261,15 +266,45 @@ export class CellComponent implements AfterViewInit {
 
   private saveField(keyPath: string, newValue: any, closeInline = false) {
     this.saving = true;
-    const prev = this.value;
-    this.value = newValue;
+
+    const prevDisplay = this.value;
+
+    if (keyPath === 'bucket_id' || keyPath === 'bucket_name') {
+      const id = keyPath === 'bucket_id'
+        ? String(newValue)
+        : (this.boardSvc.normalizeToBucketId(newValue) ?? String(newValue));
+
+      const displayName =
+        this.boardSvc.getCachedBucketName(id) ??
+        (this.bucketOptions?.find(o => o.id === id)?.name ?? prevDisplay);
+
+      this.value = displayName;
+      if (this.row) {
+        this.row.bucket_id = id;
+        this.row.bucket_name = displayName;
+      }
+
+      keyPath = 'bucket_id';
+      newValue = id;
+    } else {
+      this.value = newValue;
+    }
     this.cdr.markForCheck();
 
     this.boardSvc.updateLead(this.boardId, this.row._id, keyPath, newValue)
       .pipe(finalize(() => { this.saving = false; this.cdr.markForCheck(); }))
       .subscribe({
-        next: () => { if (closeInline) { this.editing = false; this.cdr.markForCheck(); } },
-        error: () => { this.value = prev; if (closeInline) this.editing = false; this.cdr.markForCheck(); }
+        next: () => {
+          if (closeInline) { this.editing = false; this.cdr.markForCheck(); }
+        },
+        error: () => {
+          this.value = prevDisplay;
+          if (this.row && (keyPath === 'bucket_id')) {
+            this.row.bucket_name = prevDisplay;
+          }
+          if (closeInline) this.editing = false;
+          this.cdr.markForCheck();
+        }
       });
   }
 

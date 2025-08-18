@@ -16,6 +16,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     --head-bg: #b6caf2;
     --hover-bg: #f9fbff;
     --focus-ring: #3b82f6;
+  --cell-bcol: #f1f5f9;
+  --text: #111827;
+  --muted: #6b7280;
 }
 
 body.light-default {

@@ -15,6 +15,9 @@
         <a *ngIf="type==='url'" [href]="value" target="_blank" rel="noopener noreferrer" class="cell-link">{{ value }}</a>
         <a *ngIf="type==='email'" [href]="'mailto:'+value" class="cell-link">{{ value }}</a>
         <span *ngIf="type==='priority'" [class]="badgeClassForPriority(value)">{{ value }}</span>
+        <span *ngIf="type==='bucket'">
+        {{ value || row?.bucket_name || row?.bucket_id }}
+      </span>
       </ng-container>
     </div>
 

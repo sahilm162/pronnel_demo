@@ -37,11 +37,11 @@ export class LiveUpdatesService {
       const attempt = (): Observable<IMqttMessage> =>
        this.mqtt.observe(topics[i], { qos: 0 }).pipe(
               tap({
-                subscribe: () => console.log('[MQTT] SUBSCRIBE →', topics[i]),
-                next: () => console.log('[MQTT] SUBACK OK for', topics[i]),
+                // subscribe: () => console.log('[MQTT] SUBSCRIBE →', topics[i]),
+                // next: () => console.log('[MQTT] SUBACK OK for', topics[i]),
               }),
               catchError(err => {
-                console.warn(`[MQTT] SUBACK rejected for '${topics[i]}'`, err);
+                // console.warn(`[MQTT] SUBACK rejected for '${topics[i]}'`, err);
                 i++;
                 return attempt();
               })
@@ -50,24 +50,40 @@ export class LiveUpdatesService {
     });
   }
 
+  
+  mqqtSubs(channel:any, key:any): Observable<IMqttMessage> {
+
+    return(this.mqtt.observe(key+'/'+channel))
+  }
+
+
   connect(boardId: string): Observable<void> {
     return from(this.keygen.getAuth(boardId)).pipe(
       tap(({ channel, token }) => {
         const base = channel.endsWith('/') ? channel : channel + '/';
         this.topicPrefix = base;
+        
 
-        this.mqtt.connect({
-  hostname: environment.hostName,   
-  port: 443,
-  path: environment.path,          
-  protocol: 'wss',
-  keepalive: 30,
-  clean: true,
-  username: token,                 
-  password: '',                   
-  reconnectPeriod: 5000,
-  clientId: 'web_' + Math.random().toString(16).slice(2),
-});
+        this.mqqtSubs(channel, token).subscribe((data) => {
+          console.log("Data :", data);
+        })
+
+        this.mqtt.onMessage.subscribe((data) => {
+          console.log("Data:", data)
+        })
+
+//         this.mqtt.connect({
+//   hostname: environment.hostName,   
+//   port: 443,
+//   path: environment.path,          
+//   protocol: 'wss',
+//   keepalive: 30,
+//   clean: true,
+//   username: token,                 
+//   password: '',                   
+//   reconnectPeriod: 5000,
+//   clientId: 'web_' + Math.random().toString(16).slice(2),
+// });
       }),
 
       switchMap(() =>

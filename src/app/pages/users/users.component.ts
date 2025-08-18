@@ -23,8 +23,8 @@ export class UsersComponent implements OnInit {
   startDate: string = '';
   endDate: string = '';
   filters: any = {};
-  sortField: string = 'name';
-  sortOrder: 'ASC' | 'DESC' = 'ASC';
+  sortField: string | null = null;
+  sortOrder: 'ASC' | 'DESC' | null = null;
   showInviteDialog = false;
   showDeleteConfirm = false;
   selectedUserIdToDelete: string | null = null;
@@ -75,13 +75,13 @@ toggleMobileSearch() {
 
   const filters: any = {
     searchText: this.searchText.trim(),
-    roles: this.filterRoles,
+    roles: this.filterRole,
     from: this.startDate ? new Date(this.startDate).getTime() : null,
     to: this.endDate ? new Date(this.endDate).getTime() : null,
-    sortField: this.sortField,
-    sortOrder: this.sortOrder,
+    sortField: this.sortField ?? undefined,
+    sortOrder: this.sortOrder ?? undefined,
     pageSize: 20,
-    pageNumber: this.currentPage
+    pageNumber: this.currentPage,
   };
 
   this.logger.info('Applying filters & sorting to user query', filters);
@@ -120,15 +120,14 @@ toggleMobileSearch() {
     this.loadUsers();
   }
 
-  applySort(field: string): void {
-  if (this.sortField === field) {
-    this.sortOrder = this.sortOrder === 'ASC' ? 'DESC' : 'ASC';
-  } else {
+  applySort(field: string) {
+  if (this.sortField !== field) {
     this.sortField = field;
     this.sortOrder = 'ASC';
+  } else {
+    this.sortOrder = this.sortOrder === 'ASC' ? 'DESC' : (this.sortOrder === 'DESC' ? null : 'ASC');
+    if (this.sortOrder === null) this.sortField = null;
   }
-
-  this.currentPage = 1;
   this.loadUsers();
 }
 
@@ -165,33 +164,26 @@ openInviteDialog() {
   this.closeInviteDialog();
 }
 
-  async deleteUser(): Promise<void> {
-    if (!this.selectedUserIdToDelete) return;
+deleteUser(): void {
+  if (!this.selectedUserIdToDelete) return;
 
-    const token = localStorage.getItem('x-auth-token') || '';
+  const userId = this.selectedUserIdToDelete;
+  this.userService.deleteUser(userId).subscribe({
+    next: () => {
+      this.users = this.users.filter(u => u._id !== userId);
+      this.totalUsers = Math.max(0, this.totalUsers - 1);
 
-    try {
-      const res = await fetch(`${this.BASE_URL}/user/${this.selectedUserIdToDelete}`, {
-        method: 'DELETE',
-        headers: {
-          'authorization': token,
-          'content-type': 'application/json',
-        }
-      });
+      this.showDeleteConfirm = false;
+      this.selectedUserIdToDelete = null;
 
-      if (res.ok) {
-        this.users = this.users.filter(user => user._id !== this.selectedUserIdToDelete);
-        this.totalUsers -= 1;
-        this.showDeleteConfirm = false;
-        this.selectedUserIdToDelete = null;
-        this.toast.show('User Deleted successfully', 'success');
-      } else {
-        this.toast.show('Failed to delete user.', 'error');
-      }
-    } catch (err) {
-      this.toast.show('Something went wrong while deleting.', 'error');
+      this.toast.show('User deleted successfully', 'success');
+    },
+    error: (err) => {
+      this.logger.error('Delete user failed', err);
+      this.toast.show('Failed to delete user.', 'error');
     }
-  }
+  });
+}
 
 onEdit(user: any): void {
   this.selectedUser = user;
