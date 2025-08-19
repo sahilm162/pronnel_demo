@@ -1,4 +1,3 @@
-// src/app/services/board.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, throwError, of } from 'rxjs';
@@ -29,7 +28,6 @@ export class BoardService {
         sort_order: 'ASC'
       },
       dashboard_id: [boardId],
-      bucket_type: ['NON_FINAL'],
       timezone_offset: -330
     };
 
@@ -51,7 +49,6 @@ export class BoardService {
         sort_order: 'ASC'
       },
       dashboard_id: [boardId],
-      bucket_type: ['NON_FINAL'],
       timezone_offset: -330
     };
 
@@ -216,7 +213,7 @@ export class BoardService {
     if (keyPath === 'title') return { title: value };
 
     if (keyPath === 'priority' || keyPath === 'priority_label') {
-      const mapLabelToNum: Record<string, number> = { H: 2, U: 3, M: 1, L: 0 };
+      const mapLabelToNum: Record<string, number> = { U: 3, H: 2, M: 1, L: 0 };
       const v = typeof value === 'number'
         ? value
         : mapLabelToNum[(value ?? '').toString().toUpperCase()] ?? 1;
@@ -248,10 +245,10 @@ export class BoardService {
   private priorityNumberToLabel(n: any): 'H' | 'U' | 'M' | 'L' | 'text' {
     const v = Number(n);
     switch (v) {
-      case 4: return 'U';
-      case 3: return 'H';
-      case 2: return 'M';
-      case 1: return 'L';
+      case 3: return 'U';
+      case 2: return 'H';
+      case 1: return 'M';
+      case 0: return 'L';
       default: return 'text' as any;
     }
   }

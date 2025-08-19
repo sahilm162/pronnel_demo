@@ -11,7 +11,7 @@ import { animationFrameScheduler } from 'rxjs';
 
 import { Board } from 'src/app/models/board.models';
 import { BoardService } from 'src/app/services/board.service';
-import { LiveUpdatesService, BoardPatch } from 'src/app/services/live-updates.service';
+import { LiveUpdatesService } from 'src/app/services/live-updates.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -42,21 +42,22 @@ export class BoardGridComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    this.loadFirstPage();
+ngOnInit(): void {
+  console.log('[BoardGrid] init, boardId=', this.boardId);
 
-    this.live.connect(this.boardId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({ error: (e) => console.error('[Realtime] connect error', e) });
+  this.loadFirstPage();
 
-    this.live.patches$
-      .pipe(auditTime(0, animationFrameScheduler), takeUntil(this.destroy$))
-      .subscribe((patchOrArray) => {
-        const list = Array.isArray(patchOrArray) ? patchOrArray : [patchOrArray];
-        for (const p of list) this.applyPatch(p);
-        this.cdr.markForCheck();
-      });
-  }
+  // Realtime connection
+  this.live.connectForBoard(this.boardId)
+    .then(() => console.log('[Realtime] connected ✅'))
+    .catch((e: unknown) => console.error('[Realtime] connect error', e));
+
+  this.live.boardUpdates$.subscribe((patchOrArray: any) => {
+    console.log('[Realtime] update:', patchOrArray);
+    this.applyLiveUpdate(patchOrArray);
+    this.cdr.markForCheck();
+  });
+}
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -130,45 +131,6 @@ export class BoardGridComponent implements OnInit, OnDestroy {
       });
   }
 
-
-  private applyPatch(p: BoardPatch) {
-    if (!this.board?.items) return;
-
-    if (p.op === 'insert') {
-      this.board = { ...this.board, items: [p.item, ...this.board.items] };
-      return;
-    }
-
-    if (p.op === 'remove') {
-      this.board = {
-        ...this.board,
-        items: this.board.items.filter(
-          r => (r as any)._id !== p.id && (r as any).id !== p.id
-        ),
-      };
-      return;
-    }
-
-    if (p.op === 'update') {
-      const items = this.board.items;
-      const idx = items.findIndex(r => (r as any)._id === p.id || (r as any).id === p.id);
-      if (idx === -1) return; 
-
-      const safeChanges: Record<string, any> = {};
-      for (const [k, v] of Object.entries(p.changes ?? {})) {
-        const guardKey = `${p.id}::${k}`;
-        if (!this.editingMap.has(guardKey)) safeChanges[k] = v;
-      }
-      if (!Object.keys(safeChanges).length) return;
-
-      const merged = this.applyDotChanges(items[idx] as any, safeChanges);
-      this.board = {
-        ...this.board,
-        items: [...items.slice(0, idx), merged, ...items.slice(idx + 1)],
-      };
-    }
-  }
-
   private applyDotChanges<T extends object>(row: T, changes: Record<string, any>): T {
     let next: any = { ...row };
     for (const path of Object.keys(changes)) {
@@ -199,11 +161,98 @@ export class BoardGridComponent implements OnInit, OnDestroy {
     this.editingMap.delete(`${rowId}::${dotPath}`);
   }
 
-  trackRow = (_: number, row: any) => row?._id ?? row?.id ?? _;
+  trackRow = (id: number, row: any) => row?._id
   trackCol = (_: number, col: any) => col?.key ?? _;
 
   pathGet(row: any, dotPath: string): any {
     if (!row || !dotPath) return undefined;
     return dotPath.split('.').reduce((acc, k) => (acc == null ? acc : acc[k]), row);
   }
+
+   private applyLiveUpdate(update: any) {
+  const id =
+    update?.object_type_details?.object_type_id ??
+    update?.leadId ?? update?.id ?? update?._id;
+
+  if (!id) {
+    console.warn('[BoardGrid] live: missing id; evt ignored', update);
+    return;
+  }
+
+  const items = this.board.items ?? [];
+  const idx = items.findIndex(r => (r as any)?._id === id);
+  console.log("idx:", idx)
+
+
+  if (idx === -1) {
+    console.warn('[BoardGrid] live: row not in current page; id=', id);
+    return;
+  }
+
+  const row = { ...(items[idx] as any) };
+  console.log("rows:", row)
+
+  const updates = update?.additional_attributes?.updates;
+  if (!Array.isArray(updates) || updates.length === 0) {
+    console.warn('[BoardGrid] live: no updates array; nothing to apply');
+    return;
+  }
+
+  console.log('[BoardGrid] live: applying', updates.length, 'updates to idx=', idx, 'id=', id);
+
+for (const entity of updates) {
+  if (Array.isArray(entity?.custom_fields)) {
+    row.custom_fields = { ...(row.custom_fields ?? {}) };
+    for (const cf of entity.custom_fields) {
+      const k = cf?.field_key;
+      if (!k) continue;
+      row.custom_fields[k] = cf?.new_value;
+    }
+    continue;
+  }
+
+  const fieldKey = entity?.field_key;
+  const newValue = entity?.new_value;
+
+  if (!fieldKey) continue;
+
+  if (fieldKey === 'priority') {
+    const num = Number(newValue);
+    row.priority = num;
+    const toLabel: Record<number, 'U'|'H'|'M'|'L'> = { 3: 'U', 2: 'H', 1: 'M', 0: 'L' };
+    row.priority_label = toLabel[num] ?? row.priority_label;
+    continue;
+  }
+
+  if (fieldKey === 'bucket' || fieldKey === 'bucket_id') {
+    row.bucket_id = String(newValue ?? '');
+    continue;
+  }
+
+  if (fieldKey === 'custom_fields' && Array.isArray(entity?.custom_fields)) {
+    row.custom_fields = { ...(row.custom_fields ?? {}) };
+    for (const cf of entity.custom_fields) {
+      const k = cf?.field_key;
+      if (!k) continue;
+      row.custom_fields[k] = cf?.new_value;
+    }
+    continue;
+  }
+
+  (row as any)[fieldKey] = newValue;
 }
+
+  console.log("idx demo:", items[idx])
+  console.log('before:', items[idx]['custom_fields']?.text_txt);
+console.log('after:', row.custom_fields?.text_txt);
+
+  this.board = {
+  ...this.board,
+  items: [...items.slice(0, idx), row, ...items.slice(idx + 1)],
+};
+this.cdr.markForCheck();
+
+  console.log('[BoardGrid] live: row updated at idx=', idx);
+}
+}
+
