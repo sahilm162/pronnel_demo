@@ -7,7 +7,9 @@
       </colgroup>
       <thead>
         <tr>
-          <th *ngFor="let col of columns; trackBy: trackCol">{{ col.header }}</th>
+          <th *ngFor="let col of columns; trackBy: trackCol" class="th">
+            {{ col.header }}
+          </th>
         </tr>
       </thead>
     </table>
@@ -25,8 +27,8 @@
         <col *ngFor="let _ of columns; trackBy: trackCol" class="grid-col" />
       </colgroup>
       <tbody>
-        <tr *cdkVirtualFor="let row of items; trackBy: trackRow">
-          <td *ngFor="let col of columns; trackBy: trackCol">
+        <tr *cdkVirtualFor="let row of items; trackBy: trackRow" class="tr">
+          <td *ngFor="let col of columns; trackBy: trackCol" class="td">
             <app-cell
               [type]="col.type"
               [value]="col.type === 'bucket' ? row.bucket_name : pathGet(row, col.key)"

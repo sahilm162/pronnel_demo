@@ -6,13 +6,25 @@ import {
   ViewChild,
   AfterViewInit,
   HostListener,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  OnDestroy,
 } from '@angular/core';
+import { finalize } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { CellType } from 'src/app/models/board.models';
 import { BoardService } from 'src/app/services/board.service';
-import { finalize } from 'rxjs/operators';
-import { Overlay, OverlayRef, ConnectedPosition, CdkOverlayOrigin } from '@angular/cdk/overlay';
+
 import { ComponentPortal } from '@angular/cdk/portal';
+import {
+  Overlay,
+  OverlayRef,
+  ConnectedPosition,
+  CdkOverlayOrigin,
+  ScrollStrategyOptions,
+  ScrollDispatcher,
+} from '@angular/cdk/overlay';
 
 @Component({
   selector: 'app-cell',
@@ -20,14 +32,14 @@ import { ComponentPortal } from '@angular/cdk/portal';
   styleUrls: ['./cell.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CellComponent implements AfterViewInit {
+export class CellComponent implements AfterViewInit, OnDestroy {
   @Input() type: CellType = 'text';
-  @Input() value: any;    
+  @Input() value: any;
   @Input() row: any;
   @Input() keyPath = '';
   @Input() boardId = '';
 
-  @Input() bucketOptions: Array<{id:string;name:string}> | null = null;
+  @Input() bucketOptions: Array<{ id: string; name: string }> | null = null;
 
   @ViewChild('origin', { read: CdkOverlayOrigin, static: false }) origin?: CdkOverlayOrigin;
   @ViewChild('content', { static: false }) contentRef?: ElementRef<HTMLElement>;
@@ -39,44 +51,60 @@ export class CellComponent implements AfterViewInit {
   draft: any = null;
   saving = false;
 
+  private destroy$ = new Subject<void>();
   private overlayRef?: OverlayRef;
+
+  private lastScrollAt = 0;
+  private justOpenedAt = 0;
 
   constructor(
     private boardSvc: BoardService,
     private overlay: Overlay,
     private hostEl: ElementRef<HTMLElement>,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private sso: ScrollStrategyOptions,
+    private scrollDispatcher: ScrollDispatcher,
   ) {}
 
-  ngAfterViewInit(): void { this.checkOverflow(); }
-  @HostListener('window:resize') onResize(){ this.checkOverflow(); }
+  ngAfterViewInit(): void {
+    this.checkOverflow();
 
-  @HostListener('document:click', ['$event'])
-  closeOnOutsideClick(ev: MouseEvent){
-    if (this.overlayRef && !this.overlayRef.hostElement.contains(ev.target as Node)) {
-      this.destroyOverlay();
-    }
-    const host = this.hostEl.nativeElement;
-    if (!host.contains(ev.target as Node)) {
-      if (this.editing) this.commit();
-      this.popoverOpen = false;
-      this.cdr.markForCheck();
-    }
+    this.scrollDispatcher.scrolled(0)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.lastScrollAt = Date.now();
+        if (this.overlayRef) this.destroyOverlay();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.overlayRef?.dispose();
   }
 
   @HostListener('click', ['$event'])
-  onCellClick(ev: MouseEvent) {
-    if (!this.isEditable || this.saving || this.editing) return;
-    const target = ev.target as HTMLElement;
-    if (target.closest('a,button,[role="button"],.picker-panel,.editor')) return;
+  onHostClick(ev: MouseEvent) {
+    if (this.saving || this.editing || !this.isEditable) return;
+
+    const target = ev.target as HTMLElement | null;
+
+    const anchor = target?.closest('a');
+    if (anchor) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+
+    if (target?.closest('.picker-panel, .editor')) return;
+
+    const sinceScroll = Date.now() - this.lastScrollAt;
+    const run = (fn: () => void) => (sinceScroll < 150 ? setTimeout(fn, 150) : fn());
 
     if (this.keyPath === 'priority' || this.keyPath === 'priority_label') {
-      this.openPriorityPicker();
-      return;
+      return run(() => this.openPriorityPicker());
     }
     if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') {
-      this.openBucketPicker();
-      return;
+      return run(() => this.openBucketPicker());
     }
 
     this.editing = true;
@@ -104,10 +132,42 @@ export class CellComponent implements AfterViewInit {
     }
   }
 
-  isEmpty(v:any){ return v===null || v===undefined || v===''; }
+  @HostListener('document:click', ['$event'])
+  closeOnOutsideClick(ev: MouseEvent) {
+    if (this.justOpenedAt && Date.now() - this.justOpenedAt < 120) {
+      this.justOpenedAt = 0;
+      return;
+    }
+
+    const host = this.hostEl.nativeElement;
+
+    if (this.overlayRef && !this.overlayRef.hostElement.contains(ev.target as Node)) {
+      this.destroyOverlay();
+    }
+    if (!host.contains(ev.target as Node)) {
+      if (this.editing) this.commit();
+      this.popoverOpen = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  @HostListener('window:resize') onResize() { this.checkOverflow(); }
+
+  get isEditable(): boolean {
+    if (this.keyPath === 'priority' || this.keyPath === 'priority_label') return true;
+    if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') return true;
+    if (this.keyPath === 'title') return true;
+    if (this.keyPath === 'custom_fields.text_txt') return true;
+    if (this.keyPath === 'custom_fields.number_num') return true;
+    if (this.keyPath === 'custom_fields.url') return true;
+    if (this.keyPath === 'custom_fields.email_eml') return true;
+    return false;
+  }
+
+  isEmpty(v: any) { return v === null || v === undefined || v === ''; }
 
   badgeClassForPriority(val: string): string {
-    const v=(val||'').toString().toUpperCase();
+    const v = (val || '').toString().toUpperCase();
     switch (v){
       case 'H': return 'pri pri-high';
       case 'M': return 'pri pri-medium';
@@ -178,11 +238,13 @@ export class CellComponent implements AfterViewInit {
 
   private createOverlay(anchor: HTMLElement): boolean {
     this.destroyOverlay();
+
     const rect = anchor.getBoundingClientRect?.();
     if (!rect || rect.width === 0 || rect.height === 0) {
       console.error('[cell] Invalid anchor rect; aborting overlay.', rect);
       return false;
     }
+
     const positionStrategy = this.overlay.position()
       .flexibleConnectedTo(anchor)
       .withPositions(this.positions())
@@ -190,10 +252,22 @@ export class CellComponent implements AfterViewInit {
       .withPush(true)
       .withViewportMargin(8);
 
-    this.overlayRef = this.overlay.create({ positionStrategy, panelClass: ['picker-panel'] });
+    this.overlayRef = this.overlay.create({
+      positionStrategy,
+      scrollStrategy: this.sso.close(),
+      panelClass: ['picker-panel'],
+      hasBackdrop: false,
+    });
+
+    this.justOpenedAt = Date.now();
+
+    this.overlayRef.detachments()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.destroyOverlay());
+
     this.overlayRef.updateSize({ width: Math.max(180, rect.width) });
     setTimeout(() => this.overlayRef?.updatePosition());
-    this.overlayRef.backdropClick().subscribe(() => this.destroyOverlay());
+
     return true;
   }
 
@@ -207,30 +281,20 @@ export class CellComponent implements AfterViewInit {
   }
 
   private destroyOverlay() {
-    if (this.overlayRef) { this.overlayRef.dispose(); this.overlayRef = undefined; this.cdr.markForCheck(); }
+    if (this.overlayRef) {
+      try { this.overlayRef.dispose(); } catch {}
+      this.overlayRef = undefined;
+      this.cdr.markForCheck();
+    }
   }
 
-  get isEditable(): boolean {
-    if (this.keyPath === 'priority' || this.keyPath === 'priority_label') return true;
-    if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') return true;
-    if (this.keyPath === 'title') return true;
-    if (this.keyPath === 'custom_fields.text_txt') return true;
-    if (this.keyPath === 'custom_fields.number_num') return true;
-    return false;
-  }
-
-  startEdit() {
+  startEditProgrammatically(selectAll = true) {
     if (!this.isEditable || this.saving || this.editing) return;
-
-    if (this.keyPath === 'priority' || this.keyPath === 'priority_label') { this.openPriorityPicker(); return; }
-    if (this.keyPath === 'bucket_id' || this.keyPath === 'bucket_name') { this.openBucketPicker(); return; }
-
     this.editing = true;
     this.popoverOpen = false;
     this.draft = this.value ?? '';
     this.cdr.markForCheck();
-
-    setTimeout(() => this.focusEditor(true));
+    setTimeout(() => this.focusEditor(selectAll));
   }
 
   private focusEditor(selectAll = false) {

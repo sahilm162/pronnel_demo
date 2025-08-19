@@ -1,9 +1,4 @@
-<div class="cell"
-     tabindex="0"
-     (dblclick)="!editing && startEdit()"
-     (click)="!editing && isEditable && startEdit()"
-     (keydown)="handleCellKeydown($event)">
-
+<div class="cell" [class.is-editing]="editing" tabindex="0">
   <span cdkOverlayOrigin #origin="cdkOverlayOrigin" class="anchor-box"></span>
 
   <ng-container *ngIf="!editing; else editTpl">
@@ -12,12 +7,19 @@
 
       <ng-container *ngIf="!isEmpty(value)">
         <span *ngIf="type==='text' || type==='number'">{{ value }}</span>
-        <a *ngIf="type==='url'" [href]="value" target="_blank" rel="noopener noreferrer" class="cell-link">{{ value }}</a>
-        <a *ngIf="type==='email'" [href]="'mailto:'+value" class="cell-link">{{ value }}</a>
+
+        <a *ngIf="type==='url'" [href]="value" target="_blank" rel="noopener noreferrer" class="cell-link">
+          {{ value }}
+        </a>
+        <a *ngIf="type==='email'" [href]="'mailto:'+value" class="cell-link">
+          {{ value }}
+        </a>
+
         <span *ngIf="type==='priority'" [class]="badgeClassForPriority(value)">{{ value }}</span>
+
         <span *ngIf="type==='bucket'">
-        {{ value || row?.bucket_name || row?.bucket_id }}
-      </span>
+          {{ value || row?.bucket_name || row?.bucket_id }}
+        </span>
       </ng-container>
     </div>
 
@@ -42,7 +44,7 @@
   <ng-template #editTpl>
     <div #content class="cell-edit">
       <input
-        *ngIf="keyPath==='title' || keyPath==='custom_fields.text_txt'"
+        *ngIf="keyPath==='title' || keyPath==='custom_fields.text_txt' || keyPath==='custom_fields.url' || keyPath==='custom_fields.email_eml'"
         class="editor editor-input"
         type="text"
         [value]="draft"
@@ -74,8 +76,8 @@
         (keydown)="onKeyDown($event)"
         (blur)="commit()"
       >
-        <option value="H">H</option>
         <option value="U">U</option>
+        <option value="H">H</option>
         <option value="M">M</option>
         <option value="L">L</option>
       </select>
