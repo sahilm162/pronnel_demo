@@ -25,7 +25,7 @@ export class BoardGridComponent implements OnInit, OnDestroy {
   loading = true;
   errorMsg = '';
 
-  private pageSize = 500;
+  private readonly maxFetchSize = 500_000;
   allLoaded = true;
 
   constructor(
@@ -36,8 +36,6 @@ export class BoardGridComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     try {
-      console.log('[BoardGrid] init, boardId=', this.boardId);
-
       await this.loadAllRowsOnce();
 
       await this.live.connectForBoard(this.boardId);
@@ -58,41 +56,23 @@ export class BoardGridComponent implements OnInit, OnDestroy {
     this.live.disconnect();
   }
 
-  private async loadAllRowsOnce(): Promise<void> {
+    private async loadAllRowsOnce(): Promise<void> {
     this.loading = true;
     this.errorMsg = '';
     this.board = { columns: [], items: [] };
     this.cdr.markForCheck();
 
-    const first = await firstValueFrom(
-      this.boardService.getBoardFirstPage(this.boardId, this.pageSize)
+    const full = await firstValueFrom(
+      this.boardService.getBoard(this.boardId, this.maxFetchSize)
     );
 
-    let items = first.items ?? [];
-    this.board = { columns: first.columns ?? [], items };
+    this.board = {
+      columns: full.columns ?? [],
+      items: full.items ?? [],
+    };
+
+    this.loading = false;
     this.cdr.markForCheck();
-
-    let start = items.length;
-    const hardCap = 1_000_000; 
-    while (start < hardCap) {
-      const rows = await firstValueFrom(
-        this.boardService.getBoardPage(this.boardId, start, this.pageSize)
-      );
-      if (!rows?.length) break;
-
-      const seen = new Set(items.map(r => (r as any)?._id ?? (r as any)?.id));
-      const fresh = rows.filter(r => !seen.has((r as any)?._id ?? (r as any)?.id));
-      if (fresh.length) {
-        items = items.concat(fresh);
-        this.board = { ...this.board, items };
-        this.cdr.markForCheck();
-      }
-
-      start += rows.length;
-      if (rows.length < this.pageSize) break;
-    }
-
-    this.allLoaded = true;
   }
 
   private applyLiveUpdate(update: any) {

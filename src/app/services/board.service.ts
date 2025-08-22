@@ -15,48 +15,27 @@ export class BoardService {
 
   private bucketCache = new Map<string, string>();
 
-  getBoardFirstPage(boardId: string, size: number): Observable<Board> {
-    const url = `${this.BASE_URL}${this.QUERY_ENDPOINT}`;
-    const body = {
-      custom_column: { number_num: {} },
-      search_params: { search_text: '' },
-      sort_params: [{ sort_by: 'index', order: 'DSC' }],
-      grouping_details: {
-        group_by: 'none',
-        max_group_size: size,
-        start_index: 0,
-        sort_order: 'ASC'
-      },
-      dashboard_id: [boardId],
-      timezone_offset: -330
-    };
 
-    return this.http.post<any>(url, body).pipe(
-      switchMap(raw => this.normalizeBoardWithBuckets(boardId, raw))
-    );
-  }
+getBoard(boardId: string, size: number): Observable<Board> {
+  const url = `${this.BASE_URL}${this.QUERY_ENDPOINT}`;
+  const body = {
+    custom_column: { number_num: {} },
+    search_params: { search_text: '' },
+    sort_params: [{ sort_by: 'index', order: 'DSC' }],
+    grouping_details: {
+      group_by: 'none',
+      max_group_size: size, 
+      start_index: 0,
+      sort_order: 'ASC'
+    },
+    dashboard_id: [boardId],
+    timezone_offset: -330
+  };
 
-  getBoardPage(boardId: string, start: number, size: number): Observable<any[]> {
-    const url = `${this.BASE_URL}${this.QUERY_ENDPOINT}`;
-    const body = {
-      custom_column: { number_num: {} },
-      search_params: { search_text: '' },
-      sort_params: [{ sort_by: 'index', order: 'DSC' }],
-      grouping_details: {
-        group_by: 'none',
-        max_group_size: size,
-        start_index: start,
-        sort_order: 'ASC'
-      },
-      dashboard_id: [boardId],
-      timezone_offset: -330
-    };
-
-    return this.http.post<any>(url, body).pipe(
-      switchMap(raw => this.enrichRowsWithBucketNames(boardId, raw)),
-      map(rows => rows.map(r => this.enrichRowStatic(r)))
-    );
-  }
+  return this.http.post<any>(url, body).pipe(
+    switchMap(raw => this.normalizeBoardWithBuckets(boardId, raw))
+  );
+}
 
   updateLead(dashId: string, leadId: string, keyPath: string, value: any) {
     if (keyPath === 'bucket_name') {
